@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="3.1.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MockTracer.UI\Server\MockTracer.UI.Server.csproj" />
+    <ProjectReference Include="..\..\src\MockTracer.UI\Shared\MockTracer.UI.Shared.csproj" />
+    <ProjectReference Include="..\..\src\MockTracer\MockTracer.csproj" />
+    <ProjectReference Include="..\MockTracer.Test.Api\MockTracer.Test.Api.csproj" />
+    <ProjectReference Include="..\MockTracer.Test\MockTracer.Test.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,62 @@
+﻿@page "/{Page:int?}"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using MockTracer.UI.Client.Services
+@using MockTracer.UI.Shared.Data
+@using MockTracer.UI.Shared.Entity
+@inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
+@inject ITraceService TraceService
+@inject MockTracer.UI.Client.Shared.PageHistoryState PageHistoryState
+
+<PageTitle>Index</PageTitle>
+
+@if (StackScope == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th style="width:60%">params</th>
+                <th style="width:20%">Time</th>
+                <th style="width:15%">Tracer</th>
+                <th style="width:5%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var scope in StackScope.Results)
+            {
+                <tr>
+                    <td>@scope.Title</td>
+                    <td>@scope.Time.ToString("s")</td>
+                    <td>@scope.FirstType</td>
+                    <td style="white-space: nowrap">
+                        <NavLink href="@($"{UriHelper.BaseUri}trace/{scope.Id}")" class="oi oi-eye text-primary mr-3 nounderline"></NavLink>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <Pager Result=@StackScope PageChanged=PagerPageChanged />
+}
+
+@code {
+    [Parameter]
+    public int? Page { get; set; } = null;
+    protected PagedResult<StackScope>? StackScope;
+
+    protected override async Task OnInitializedAsync()
+    {
+        StackScope = await TraceService.GetTraceListAsync(Page ?? 1);
+        Console.WriteLine(UriHelper.BaseUri);
+        base.OnInitialized();
+    }
+
+    protected void PagerPageChanged(int page)
+    {
+        UriHelper.NavigateTo(UriHelper.BaseUri + page);
+        PageHistoryState.AddPageToHistory(UriHelper.Uri);
+    }
+}

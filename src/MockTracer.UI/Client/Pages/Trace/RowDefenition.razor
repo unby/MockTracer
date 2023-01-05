@@ -1,0 +1,59 @@
+@using MockTracer.UI.Shared.Entity
+<div>
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" disabled="@(!(row.Input != null && row.Input.Count() > 0))" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Input
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    @foreach (var item in row.Input)
+                    {
+                        <h6>@item.Name</h6>
+
+                        <div class="overflow-auto">@item.ShortView</div>
+                    }
+                </div>
+            </div>
+        </div>
+        @if (row.Output != null)
+        {
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" disabled="@((row.Output==null))" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Ouput @(@row.Output?.Name != null ? $"({@row.Output.Name})" : "")
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+
+                        <div class="overflow-auto"> @row.Output?.ShortView</div>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (row.Exception != null)
+        {
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" disabled="@(row.Exception==null)" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Exception @(@row.Exception?.Name != null ? $"({@row.Exception.Name})" : "")
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+
+                        <div class="overflow-auto"> @row.Exception?.ShortView</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@code {
+
+    [Parameter]
+    public StackRow row { get; set; }
+}

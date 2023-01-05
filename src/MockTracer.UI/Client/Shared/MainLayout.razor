@@ -1,0 +1,24 @@
+﻿@inherits LayoutComponentBase
+
+<nav class="navbar navbar-expand navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">Mock tracer</a>
+    <div class="navbar-nav">
+        <NavLink href="/" Match="NavLinkMatch.All" class="nav-item nav-link">Home</NavLink>
+        <NavLink href="/swagger/index.html" class="nav-item nav-link" target="_blank">API</NavLink>
+    </div>
+    
+</nav>
+
+<div class="app-container">
+    <div class="p-4">
+        <div>
+            <Alert />
+            @Body
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container text-center">
+            <span class="text-muted">github.com/unby 2022</span>
+        </div>
+    </footer>
+</div>

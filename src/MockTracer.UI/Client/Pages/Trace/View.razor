@@ -1,0 +1,175 @@
+@page "/trace/{id:guid}"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using MockTracer.UI.Client.Services
+@using MockTracer.UI.Shared.Data
+@using MockTracer.UI.Shared.Entity
+@using MockTracer.UI.Shared.Presentation
+@inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
+@inject ITraceService TraceService
+@inject MockTracer.UI.Client.Shared.PageHistoryState PageHistoryState
+
+<h1>Scope defenition</h1>
+<br />
+
+@if (stack == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <div class="input-group">
+                <input type="text" class="form-control" @bind="@testName" placeholder="test class name" aria-label="test class name2" aria-describedby="button-addon2">
+                <button type="button" class="btn btn-outline-secondary" @onclick="MakeTestAsync">Generate test</button>
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">New feature</a></li>
+                    <li><a class="dropdown-item" href="#">New feature 2</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" @onclick="MakeIntrenalTestAsync">Internal geneartion</a></li>
+                </ul>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th style="width:5%">Call order</th>
+                        <th style="width:5%">input</th>
+                        <th style="width:5%">output</th>
+                        <th style="width:15%">Tracer</th>
+                        <th style="width:70%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in stack)
+                    {
+                        <tr @onclick="()=> ClickedRow(row.Stack)">
+                            <td>@row.Stack.Order</td>
+                            <td>
+                                <input id="{@row.Stack.Order + checkinput}"
+                               type="checkbox"
+                               checked="@row.IsInput"
+                               @onchange="@((args) => CheckInput(row, args))"
+                               disabled="@(!stack.Any(a=>a.Stack.ParentId==row.Stack.Id))" />
+                            </td>
+                            <td>
+                                <input id="{@row.Stack.Order + checkinput}"
+                               type="checkbox"
+                               checked="@row.IsOutput"
+                               @onchange="@((args) => SetOutput(row, args))"
+                               disabled="@(!row.ParentList.Contains(stack.FirstOrDefault(f=>f.IsInput).Stack.Id))" />
+                            </td>
+                            <td>@row.Stack.DeepLevel  @row.Stack.TracerType</td>
+                            <td>@row.Stack.Title</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            @if (selectedRow != null)
+            {
+                <RowDefenition row="@selectedRow" />
+            }
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    Row[] stack = null;
+
+    StackRow? selectedRow = null;
+    string testName = "testclass.testmethod";
+    private async Task MakeTestAsync()
+    {
+        await TraceService.MakeTestAsync(
+            new UI.Shared.Generation.GenerationAttributes()
+                {
+                    ScopeId = stack[0].Stack.ScopeId,
+                    InputId = stack.First(f => f.IsInput).Stack.Id,
+                    OutputId = stack.Where(w => w.IsOutput).Select(s => s.Stack.Id).ToArray(),
+                    TestName = testName
+                });
+    }
+
+    private async Task MakeIntrenalTestAsync(){
+        await TraceService.MakeInternalTestAsync(
+           new UI.Shared.Generation.GenerationAttributes()
+               {
+                   ScopeId = stack[0].Stack.ScopeId,
+                   InputId = stack.First(f => f.IsInput).Stack.Id,
+                   OutputId = stack.Where(w => w.IsOutput).Select(s => s.Stack.Id).ToArray(),
+                   TestName = testName
+               });
+    }
+
+    public void ClickedRow(StackRow row)
+    {
+        selectedRow = row;
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        var list = await TraceService.GetTraceRowsAsync(Id);
+        stack = list.Select(s => new Row() { Stack = s, IsInput = s.Order == 1, ParentList = GetParent(list, s), IsOutput = !list.Any(a => a.ParentId == s.Id) }).ToArray();
+    }
+
+    public void CheckInput(Row row, ChangeEventArgs checkedValue)
+    {
+        foreach (var item in stack)
+        {
+            if (item.Equals(row))
+            {
+                if (!(bool)checkedValue.Value && item.IsInput)
+                {
+                    break;
+                }
+                else
+                {
+                    item.IsInput = true;
+                }
+            }
+            else
+            {
+                item.IsInput = false;
+            }
+
+            if (!item.ParentList.Contains(row.Stack.Id))
+            {
+                item.IsOutput = false;
+            }
+        }
+    }
+
+    public void SetOutput(Row row, ChangeEventArgs checkedValue)
+    {
+        Console.WriteLine(checkedValue);
+        foreach (var item in stack.Where(w => w.Stack.Id == row.Stack.Id))
+        {
+            item.IsOutput = (bool)checkedValue.Value;
+        }
+    }
+
+    private List<Guid> GetParent(StackRow[] stacks, StackRow curent)
+    {
+        var reslut = new List<Guid>();
+        if (curent.ParentId == null)
+        { return reslut; }
+
+
+        while (curent.ParentId != null)
+        {
+            reslut.Add(curent.ParentId.Value);
+            curent = stacks.FirstOrDefault(f => f.Id == curent.ParentId);
+        }
+
+        return reslut;
+    }
+}
