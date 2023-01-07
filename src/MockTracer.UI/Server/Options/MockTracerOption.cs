@@ -1,4 +1,7 @@
-﻿namespace MockTracer.UI.Server.Options;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace MockTracer.UI.Server.Options;
 
 public class MockTracerOption
 {

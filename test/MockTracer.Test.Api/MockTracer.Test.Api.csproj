@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="MediatR" Version="11.1.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.11">
@@ -21,8 +22,14 @@
 
   
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MockTracer.UI\Client\MockTracer.UI.Client.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.10" />
+    <ProjectReference Condition="$(Configuration)=='Debug'" Include="..\..\src\MockTracer.UI\Client\MockTracer.UI.Client.csproj" />
     <ProjectReference Include="..\..\src\MockTracer.UI\Server\MockTracer.UI.Server.csproj" />
   </ItemGroup>
 
+  <!--https://stackoverflow.com/questions/63457026/any-way-to-exclude-blazordebugproxy-directory-from-release-blazor-wasm-apps-->
+  <PropertyGroup>
+    <BlazorWebAssemblyOmitDebugProxyOutput>false</BlazorWebAssemblyOmitDebugProxyOutput>
+  </PropertyGroup>
+  
 </Project>

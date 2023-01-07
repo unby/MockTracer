@@ -1,11 +1,20 @@
 ﻿using System.Data;
 using System.Data.Common;
+using System.Net.Mime;
 using System.Reflection;
 using System.Reflection.Emit;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using MockTracer.UI.Server.Application.Generation;
 using MockTracer.UI.Server.Application.Presentation;
 using MockTracer.UI.Server.Application.Storage;
@@ -31,6 +40,7 @@ public static class RegisterExtentions
         return true;
       }
 
+      Console.WriteLine("MockerTrace is disabled");
       return false;
     }
   }
@@ -69,10 +79,7 @@ public static class RegisterExtentions
 
       services.AddHttpContextAccessor();
       services.AddScoped<TraceRepository>();
-      services.AddControllers(o => o.Filters.Add<ActionFilterTracer>()).AddJsonOptions(options =>
-      {
-        // options.JsonSerializerOptions.cy
-      });
+      services.AddControllers(o => o.Filters.Add<ActionFilterTracer>()).AddJsonOptions(options => { });
 
       services.RegisterGenerator();
       services.AddScoped<HttpClientTraceHandler>();
@@ -83,6 +90,8 @@ public static class RegisterExtentions
           builder.AdditionalHandlers.Add(builder.Services.GetRequiredService<HttpClientTraceHandler>());
         });
       });
+
+      Console.WriteLine("MockerTrace services are configured");
     }
 
     return services;
@@ -98,16 +107,13 @@ public static class RegisterExtentions
         app.UseWebAssemblyDebugging();
       }
 
-
-      app.UseBlazorFrameworkFiles();
-      app.UseStaticFiles("/" + Prefix.TrimEnd('/'));
-      app.UseRouting();
       app.UseMiddleware<HttpContextTrace>();
+
+#if DEBUG
       app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/mocktracer"), first =>
       {
         first.UseBlazorFrameworkFiles("/mocktracer");
         first.UseStaticFiles();
-
         first.UseRouting();
         first.UseEndpoints(endpoints =>
         {
@@ -115,15 +121,157 @@ public static class RegisterExtentions
           endpoints.MapFallbackToFile("mocktracer/{*path:nonfile}", "mocktracer/index.html");
         });
       });
+#else
+           app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/mocktracer"), first =>
+      {
+        var options = CreateStaticFilesOptions(new ResourceProvider());
+        first.UseEmbededLocalBlazorApp("/mocktracer", options);
+        first.UseStaticFiles();
+        first.UseRouting();
+        first.UseEndpoints(endpoints =>
+        {
+          endpoints.MapControllers();
+          endpoints.MapFallback(HandleFallbackAsync);
+          //endpoints.MapFallbackToFile("mocktracer/{*path}", "mocktracer/index.html", options);
+        });
+      });
+#endif
+
+
 
       using (var scope = app.ApplicationServices.CreateScope())
       {
         var dbContext = scope.ServiceProvider.GetRequiredService<MockTracerDbContext>();
         dbContext.Database.EnsureCreated();
       }
+
+      Console.WriteLine("App's MockerTrace is configured");
     }
 
     return app;
+  }
+
+  public static async Task HandleFallbackAsync(HttpContext context)
+  {
+    var apiPathSegment = new PathString("/mocktracer/data"); // Find out from the request URL if this is a request to the API or just a web page on the Blazor WASM app.
+    bool isApiRequest = context.Request.Path.StartsWithSegments(apiPathSegment);
+
+    if (!isApiRequest)
+    {
+      context.Response.SendFileAsync(MemoryFileInfo.Index); // This is a request for a web page so just do the normal out-of-the-box behaviour.
+    }
+    else
+    {
+      context.Response.StatusCode = StatusCodes.Status404NotFound; // This request had nothing to do with the Blazor app. This is just an API call that went wrong.
+    }
+  }
+
+  /// <summary>
+  /// Configures the application to serve Blazor WebAssembly framework files from the path <paramref name="pathPrefix"/>. This path must correspond to a referenced Blazor WebAssembly application project.
+  /// </summary>
+  /// <param name="builder">The <see cref="IApplicationBuilder"/>.</param>
+  /// <param name="pathPrefix">The <see cref="PathString"/> that indicates the prefix for the Blazor WebAssembly application.</param>
+  /// <returns>The <see cref="IApplicationBuilder"/></returns>
+  public static IApplicationBuilder UseEmbededLocalBlazorApp(this IApplicationBuilder builder, PathString pathPrefix, StaticFileOptions options)
+  {
+    if (builder is null)
+    {
+      throw new ArgumentNullException(nameof(builder));
+    }
+
+    var webHostEnvironment = builder.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
+
+    builder.MapWhen(ctx =>
+    {
+      return ctx.Request.Path.StartsWithSegments(pathPrefix, out var rest) && Path.HasExtension(rest) && !rest.StartsWithSegments("/data");
+    },
+    subBuilder =>
+    {
+      subBuilder.Use(async (context, next) =>
+      {
+        context.Response.Headers.Append("Blazor-Environment", webHostEnvironment.EnvironmentName);
+
+        if (webHostEnvironment.IsDevelopment())
+        {
+          // DOTNET_MODIFIABLE_ASSEMBLIES is used by the runtime to initialize hot-reload specific environment variables and is configured
+          // by the launching process (dotnet-watch / Visual Studio).
+          // In Development, we'll transmit the environment variable to WebAssembly as a HTTP header. The bootstrapping code will read the header
+          // and configure it as env variable for the wasm app.
+          if (Environment.GetEnvironmentVariable("DOTNET_MODIFIABLE_ASSEMBLIES") is string dotnetModifiableAssemblies)
+          {
+            context.Response.Headers.Append("DOTNET-MODIFIABLE-ASSEMBLIES", dotnetModifiableAssemblies);
+          }
+
+          // See https://github.com/dotnet/aspnetcore/issues/37357#issuecomment-941237000
+          // Translate the _ASPNETCORE_BROWSER_TOOLS environment configured by the browser tools agent in to a HTTP response header.
+          if (Environment.GetEnvironmentVariable("__ASPNETCORE_BROWSER_TOOLS") is string blazorWasmHotReload)
+          {
+            context.Response.Headers.Append("ASPNETCORE-BROWSER-TOOLS", blazorWasmHotReload);
+          }
+        }
+
+        await next(context);
+      });
+
+      // subBuilder.UseMiddleware<ContentEncodingNegotiator>();
+
+      subBuilder.UseStaticFiles(options);
+    });
+
+    return builder;
+  }
+
+  private static StaticFileOptions CreateStaticFilesOptions(IFileProvider webRootFileProvider)
+  {
+    var options = new StaticFileOptions();
+    options.FileProvider = webRootFileProvider;
+    var contentTypeProvider = new FileExtensionContentTypeProvider();
+    AddMapping(contentTypeProvider, ".dll", MediaTypeNames.Application.Octet);
+    // We unconditionally map pdbs as there will be no pdbs in the output folder for
+    // release builds unless BlazorEnableDebugging is explicitly set to true.
+    AddMapping(contentTypeProvider, ".pdb", MediaTypeNames.Application.Octet);
+    AddMapping(contentTypeProvider, ".br", MediaTypeNames.Application.Octet);
+    AddMapping(contentTypeProvider, ".dat", MediaTypeNames.Application.Octet);
+    AddMapping(contentTypeProvider, ".blat", MediaTypeNames.Application.Octet);
+
+    options.ContentTypeProvider = contentTypeProvider;
+
+    // Static files middleware will try to use application/x-gzip as the content
+    // type when serving a file with a gz extension. We need to correct that before
+    // sending the file.
+    options.OnPrepareResponse = fileContext =>
+    {
+      // At this point we mapped something from the /_framework
+      fileContext.Context.Response.Headers.Append(HeaderNames.CacheControl, "no-cache");
+
+      var requestPath = fileContext.Context.Request.Path;
+      var fileExtension = Path.GetExtension(requestPath.Value);
+      if (string.Equals(fileExtension, ".gz") || string.Equals(fileExtension, ".br"))
+      {
+        // When we are serving framework files (under _framework/ we perform content negotiation
+        // on the accept encoding and replace the path with <<original>>.gz|br if we can serve gzip or brotli content
+        // respectively.
+        // Here we simply calculate the original content type by removing the extension and apply it
+        // again.
+        // When we revisit this, we should consider calculating the original content type and storing it
+        // in the request along with the original target path so that we don't have to calculate it here.
+        var originalPath = Path.GetFileNameWithoutExtension(requestPath.Value);
+        if (originalPath != null && contentTypeProvider.TryGetContentType(originalPath, out var originalContentType))
+        {
+          fileContext.Context.Response.ContentType = originalContentType;
+        }
+      }
+    };
+
+    return options;
+  }
+
+  private static void AddMapping(FileExtensionContentTypeProvider provider, string name, string mimeType)
+  {
+    if (!provider.Mappings.ContainsKey(name))
+    {
+      provider.Mappings.Add(name, mimeType);
+    }
   }
 
   public static IServiceCollection DecorateDbProvider<T>(this IServiceCollection services)

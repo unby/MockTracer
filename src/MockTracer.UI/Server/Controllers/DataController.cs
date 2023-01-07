@@ -6,6 +6,7 @@ using MockTracer.UI.Server.Application.Presentation;
 using MockTracer.UI.Shared.Generation;
 
 namespace MockTracer.UI.Server.Controllers;
+
 [ApiController]
 [Route("[controller]")]
 public class DataController : ControllerBase

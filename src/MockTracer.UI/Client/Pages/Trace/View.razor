@@ -150,7 +150,6 @@ else
 
     public void SetOutput(Row row, ChangeEventArgs checkedValue)
     {
-        Console.WriteLine(checkedValue);
         foreach (var item in stack.Where(w => w.Stack.Id == row.Stack.Id))
         {
             item.IsOutput = (bool)checkedValue.Value;

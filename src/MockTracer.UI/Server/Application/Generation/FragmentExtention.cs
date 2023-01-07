@@ -199,11 +199,6 @@ internal static class FragmentExtention
       Console.WriteLine(workspace);
 
       var temp = Formatter.Format(root, workspace);
-      Console.WriteLine(root.ToString());
-      Console.WriteLine(tree.ToString());
-      Console.WriteLine(temp.ToString());
-      // var tree = CSharpSyntaxTree.ParseText(csCode);
-      // var root = tree.GetRoot().NormalizeWhitespace();
       return temp.ToFullString();
     }
     catch(Exception ex)
