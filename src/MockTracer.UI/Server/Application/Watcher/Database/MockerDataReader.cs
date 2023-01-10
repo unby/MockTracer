@@ -24,7 +24,6 @@ public class MockerDataReader : DbDataReader, IDataReader
   {
     get
     {
-      Console.WriteLine($"object this[int {i}]");
       var value = _reader[i];
       try
       {
@@ -43,7 +42,6 @@ public class MockerDataReader : DbDataReader, IDataReader
   {
     get
     {
-      Console.WriteLine($"object this[int {name}]");
       var value = _reader[name];
       try
       {

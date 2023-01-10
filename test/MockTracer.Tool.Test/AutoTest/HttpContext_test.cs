@@ -6,43 +6,43 @@ using MockTracer.UI.Server.Application.Storage;
 using MockTracer.UI.Shared.Entity;
 using MockTracer.UI.Shared.Generation;
 
-namespace MockTracer.Tool.Test;
+namespace MockTracer.Tool.Test.AutoTest;
 
 public class HttpContext_test : ToolTestBase
 {
   public HttpContext_test(Xunit.Abstractions.ITestOutputHelper output)
     : base(output)
-{
-}
+  {
+  }
 
-[Fact]
-public async Task Should_create_HttpContext_template_Async()
-{
-  var generator = NewServer().Services.GetRequiredService<TestClassGenerator>();
-  var newClass = await generator.CreateAsync(Attributes);
+  [Fact]
+  public async Task Should_create_HttpContext_template_Async()
+  {
+    var generator = NewServer().Services.GetRequiredService<TestClassGenerator>();
+    var newClass = await generator.CreateAsync(Attributes);
 
-  Assert.NotNull(newClass.SourceCode);
+    Assert.NotNull(newClass.SourceCode);
     Log.WriteLine(newClass.SourceCode);
-}
+  }
 
-protected GenerationAttributes Attributes => new GenerationAttributes
-{
-  ScopeId = new Guid("08dad941-ad87-2581-c87e-ba36e4034578"),
-  InputId = new Guid("08dad941-ad88-956f-c87e-ba36e4034579"),
-  OutputId = new Guid[]
-{
+  protected GenerationAttributes Attributes => new GenerationAttributes
+  {
+    ScopeId = new Guid("08dad941-ad87-2581-c87e-ba36e4034578"),
+    InputId = new Guid("08dad941-ad88-956f-c87e-ba36e4034579"),
+    OutputId = new Guid[]
+  {
     new Guid("08dad941-b022-37af-c87e-ba36e403457d")
-},
-  TestName = "Test.NameSpace.FirstTestClass.testmethod"
-};
+  },
+    TestName = "Test.NameSpace.FirstTestClass.testmethod"
+  };
 
-protected override void AfterBuildConfiguration(IHost host)
-{
-  base.AfterBuildConfiguration(host);
-  using var scope = host.Services.CreateScope();
-  using var context = scope.ServiceProvider.GetRequiredService<MockTracerDbContext>();
-  context.AddRange(new object[]
-{
+  protected override void AfterBuildConfiguration(IHost host)
+  {
+    base.AfterBuildConfiguration(host);
+    using var scope = host.Services.CreateScope();
+    using var context = scope.ServiceProvider.GetRequiredService<MockTracerDbContext>();
+    context.AddRange(new object[]
+  {
   new StackRow
   {
     Id = new Guid("08dad941-ad88-956f-c87e-ba36e4034579"),
@@ -78,7 +78,7 @@ protected override void AfterBuildConfiguration(IHost host)
     StackRowId = new Guid("08dad941-ad88-956f-c87e-ba36e4034579"),
     ShortView = string.Empty
   }
-});
-  context.SaveChanges();
-}
+  });
+    context.SaveChanges();
+  }
 }

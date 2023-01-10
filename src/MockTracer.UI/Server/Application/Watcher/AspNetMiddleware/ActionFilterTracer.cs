@@ -1,18 +1,21 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using MockTracer.UI.Server.Application.Common;
 using MockTracer.UI.Server.Application.Generation;
+using Microsoft.Extensions.Options;
+using MockTracer.UI.Server.Options;
 
 namespace MockTracer.UI.Server.Application.Watcher.AspNetMiddleware;
 
 public class ActionFilterTracer : IAsyncActionFilter, ITracer
 {
   private readonly ScopeWathcer _scopeStore;
+  private readonly MockTracerOption _options;
 
-  public ActionFilterTracer(ScopeWathcer scopeStore)
+  public ActionFilterTracer(ScopeWathcer scopeStore, IOptions<MockTracerOption> options)
   {
     _scopeStore = scopeStore;
+    _options = options.Value;
   }
   public TraceInfo MakeInfo(string title)
   {
@@ -26,8 +29,7 @@ public class ActionFilterTracer : IAsyncActionFilter, ITracer
 
   public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
   {
-
-    if (context.Controller is Controller controller)
+    if (context.Controller is ControllerBase controller && _options.AllowRoutes.IsWatch(controller.HttpContext.Request.Path))
     {
       var request = controller.HttpContext.Request;
       var n = context.ActionArguments.Keys;

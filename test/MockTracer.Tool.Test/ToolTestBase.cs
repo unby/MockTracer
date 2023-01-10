@@ -37,15 +37,16 @@ public class ToolTestBase : TestBase<TopicController>
     {
       s.RemoveAll<DbContextOptions<BlogDbContext>>();
 
-      s.AddDbContext<BlogDbContext>(options => {
-        options.UseInMemoryDatabase(nameof(BlogDbContext) + testName + this.GetHashCode());
+      s.AddDbContext<BlogDbContext>(options =>
+      {
+        options.UseInMemoryDatabase(nameof(BlogDbContext) + testName + GetHashCode());
         options.EnableSensitiveDataLogging();
-                      });
+      });
       s.AddScoped<IBlogDbContext, BlogDbContext>();
 
       s.RemoveAll<DbContextOptions<MockTracerDbContext>>();
       s.AddDbContext<MockTracerDbContext>(options =>
-                     options.UseInMemoryDatabase(nameof(MockTracerDbContext) + testName + this.GetHashCode()));
+                     options.UseInMemoryDatabase(nameof(MockTracerDbContext) + testName + GetHashCode()));
     };
   }
 
@@ -57,7 +58,7 @@ public class ToolTestBase : TestBase<TopicController>
       try
       {
         using var context = services.GetRequiredService<BlogDbContext>();
-        
+
         SeedData.AddDataToContext(context);
         context.SaveChanges();
       }

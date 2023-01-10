@@ -6,8 +6,6 @@ using MockTracer.Test.Api.Application.Features.Data;
 using MockTracer.Test.Api.Domain;
 using MockTracer.Test.Api.Infrastracture.Database;
 using MockTracer.Test.Api.Infrastracture.External;
-using MockTracer.UI.Server;
-using MockTracer.UI.Server.Application.Watcher;
 using Refit;
 
 namespace MockTracer.Test.Api;
@@ -21,7 +19,6 @@ public class Startup
 
   public IConfiguration Configuration { get; }
 
-  // This method gets called by the runtime. Use this method to add services to the container.
   public void ConfigureServices(IServiceCollection services)
   {
 
@@ -38,7 +35,7 @@ public class Startup
     services.AddDbContext<BlogDbContext>(options =>
                     options.UseSqlite("Filename=Blog.db"));
     services.AddRefitClient<ICatService>().ConfigureHttpClient(c => c.BaseAddress = new Uri(Configuration.GetValue<string>("CatApiUrl")));
-    services.UseMockTracerUiService((o, s) => s.DecorateDbProvider<IDbProvider>());
+    services.UseMockTracerUiService((s) => s.DecorateDbProvider<IDbProvider>());
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

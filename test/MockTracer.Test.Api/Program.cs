@@ -1,15 +1,4 @@
-﻿using System.Reflection;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using MockTracer.Test.Api;
-using MockTracer.Test.Api.Application.Features.Data;
-using MockTracer.Test.Api.Domain;
-using MockTracer.Test.Api.Infrastracture.Database;
-using MockTracer.Test.Api.Infrastracture.External;
-using MockTracer.UI.Server;
-using MockTracer.UI.Server.Application.Watcher;
-using Refit;
+﻿using MockTracer.Test.Api.Infrastracture.Database;
 /*
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;

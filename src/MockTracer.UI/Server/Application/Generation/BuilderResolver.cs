@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using MockTracer.UI.Server.Application.Generation.MockBuilders;
 using MockTracer.UI.Server.Application.Generation.TraceBuilders;
 

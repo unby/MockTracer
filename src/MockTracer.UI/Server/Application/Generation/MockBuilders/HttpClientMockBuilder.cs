@@ -4,7 +4,6 @@ using MockTracer.UI.Server.Application.Generation.Common;
 using MockTracer.UI.Server.Application.Watcher;
 using MockTracer.UI.Server.Application.Watcher.AspNetMiddleware;
 using MockTracer.UI.Shared.Entity;
-using MockTracer.UI.Shared.Presentation;
 
 namespace MockTracer.UI.Server.Application.Generation.MockBuilders;
 

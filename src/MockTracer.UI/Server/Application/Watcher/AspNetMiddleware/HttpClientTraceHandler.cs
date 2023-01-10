@@ -1,11 +1,8 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using MockTracer.UI.Server.Application.Common;
 using MockTracer.UI.Server.Application.Generation;
-using MockTracer.UI.Shared.Entity;
-using MockTracer.UI.Shared.Presentation;
 
 namespace MockTracer.UI.Server.Application.Watcher.AspNetMiddleware;
 
