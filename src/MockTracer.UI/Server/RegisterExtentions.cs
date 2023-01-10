@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
@@ -32,7 +33,14 @@ public static class RegisterExtentions
 {
   internal const string ExtentionsState = "MOCKTRACER_ENABLE";
   internal const string Prefix = "mocktracer/";
-
+  internal const string MockTracer = "mocktracer";
+  internal static Action<MockTracerOption> defaultInit = (s) =>
+  {
+    if (!s.AllowRoutes.Allows.Any())
+    {
+      s.AllowRoutes.Allows = new [] { "api" };
+    }
+  };
   internal static bool IsRegister
   {
     get
@@ -71,7 +79,7 @@ public static class RegisterExtentions
   /// <param name="services"><see cref="IServiceCollection"/></param>
   /// <param name="replaceAction">customise function</param>
   /// <returns><see cref="IServiceCollection"/></returns>
-  public static IServiceCollection UseMockTracerUiService(this IServiceCollection services, Action<IServiceCollection>? replaceAction = null)
+  public static IServiceCollection UseMockTracerUiService(this IServiceCollection services, Action<IServiceCollection>? replaceAction = null, Action<MockTracerOption>? configureOptions = null)
   {
     if (IsRegister)
     {
@@ -84,15 +92,12 @@ public static class RegisterExtentions
       services.AddDbContext<MockTracerDbContext>(options =>
                options.UseSqlite("Filename=MockTracer.db"));
       services.AddScoped<ScopeWathcer>();
-      services.AddOptions<MockTracerOption>();
-      replaceAction?.Invoke(services);
+      services.AddOptions<MockTracerOption>().Configure<IConfiguration>((o, c) => c.Bind("MockTracer", o)).PostConfigure(configureOptions ?? defaultInit);
       services.AddScoped<TestClassGenerator>();
       services.AddSingleton(s => s.GetRequiredService<IOptions<MockTracerOption>>().Value.GenerationSetting);
-
       services.AddHttpContextAccessor();
       services.AddScoped<TraceRepository>();
       services.AddControllers(o => o.Filters.Add<ActionFilterTracer>()).AddJsonOptions(options => { });
-
       services.RegisterGenerator();
       services.AddScoped<HttpClientTraceHandler>();
       services.PostConfigureAll<HttpClientFactoryOptions>(options =>
@@ -103,6 +108,7 @@ public static class RegisterExtentions
         });
       });
 
+      replaceAction?.Invoke(services);
       Console.WriteLine("MockerTrace services are configured");
     }
 

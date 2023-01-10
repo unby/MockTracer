@@ -2,10 +2,10 @@
 
 public class HttpRouteOptions
 {
-  public string[] Allows { get; set; } = new[] {"/api"};
+  public string[] Allows { get; set; } = new string[0];
 
   public bool IsWatch(string path)
   {
-    return Allows.Any(a => path.StartsWith(a));
+    return Allows.Contains("*") || Allows.Any(a => path.StartsWith(a));
   }
 }
