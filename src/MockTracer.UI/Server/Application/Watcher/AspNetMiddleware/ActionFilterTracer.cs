@@ -9,15 +9,15 @@ namespace MockTracer.UI.Server.Application.Watcher.AspNetMiddleware;
 
 public class ActionFilterTracer : IAsyncActionFilter, ITracer
 {
-  private readonly ScopeWathcer _scopeStore;
+  private readonly ScopeWatcher _scopeStore;
   private readonly MockTracerOption _options;
 
-  public ActionFilterTracer(ScopeWathcer scopeStore, IOptions<MockTracerOption> options)
+  public ActionFilterTracer(ScopeWatcher scopeStore, IOptions<MockTracerOption> options)
   {
     _scopeStore = scopeStore;
     _options = options.Value;
   }
-  public TraceInfo MakeInfo(string title)
+  public TraceInfo CreateInfo(string title)
   {
     return new TraceInfo()
     {
@@ -36,8 +36,8 @@ public class ActionFilterTracer : IAsyncActionFilter, ITracer
       var obj = context.ActionArguments.Select(s => s.Value).FirstOrDefault();
       var httpRequest = new TraceHttpRequest() { Method = request.Method, ContentType = request.ContentType, FullPath = $"{request.Path}{request.QueryString}".Trim('?'), Path = request.Path };
 
-      var traceInfo = MakeInfo(httpRequest.FullPath);
-      await _scopeStore.AddInputAsync(traceInfo, new ServiceData()
+      var traceInfo = CreateInfo(httpRequest.FullPath);
+      await _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "request",
         Namespace = obj?.GetType().Namespace ?? string.Empty,
@@ -66,7 +66,7 @@ public class ActionFilterTracer : IAsyncActionFilter, ITracer
           objResponse = objectResult.Value;
         }
 
-        await _scopeStore.AddOutputAsync(traceInfo, new ServiceData()
+        await _scopeStore.AddOutputAsync(traceInfo, new ArgumentObjectInfo()
         {
           ArgumentName = "request",
           Namespace = objResponse?.GetType().Namespace ?? string.Empty,

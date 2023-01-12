@@ -23,7 +23,7 @@ public class MvcFilterBuilder : TracerBuilderBase
     try
     {
       var data = row.Input.FirstOrDefault();
-      var request = JsonSerializer.Deserialize<TraceHttpRequest>(data.AddInfo, ScopeWathcer.JsonOptions);
+      var request = JsonSerializer.Deserialize<TraceHttpRequest>(data.AddInfo, ScopeWatcher.JsonOptions);
 
       var argument = string.Empty;
 

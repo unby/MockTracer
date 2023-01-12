@@ -5,10 +5,10 @@ using MockTracer.UI.Server.Application.Generation;
 
 namespace MockTracer.UI.Server.Application.Watcher.Database;
 
-public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinisher
+public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlusher
 {
   private TraceInfo _traceInfo = null;
-  public TraceInfo MakeInfo(string title)
+  public TraceInfo CreateInfo(string title)
   {
     if (_traceInfo == null)
     {
@@ -23,17 +23,17 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
     return _traceInfo;
   }
   private List<DataSet> result;
-  public void AddResult(List<DataSet> result)
+  public void FlushResult(List<DataSet> result)
   {
     this.result = result;
   }
 
   private readonly DbCommand _dbCommand;
-  private ScopeWathcer _traceStore;
+  private ScopeWatcher _traceStore;
   private (string? nameSpace, string name)? _dbProviderType;
   private bool _isRunAsync;
 
-  public DbCommandMocker(DbCommand dbCommand, ScopeWathcer traceStore, Type? dbProviderType)
+  public DbCommandMocker(DbCommand dbCommand, ScopeWatcher traceStore, Type? dbProviderType)
   {
     _dbCommand = dbCommand ?? throw new ArgumentNullException(nameof(dbCommand));
     _traceStore = traceStore ?? throw new ArgumentNullException(nameof(traceStore));
@@ -77,7 +77,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
     if (_isRunAsync)
     {
       var tarceInfo = _traceInfo;
-      _traceStore.AddOutputAsync(tarceInfo, new ServiceData()
+      _traceStore.AddOutputAsync(tarceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "dataset",
         ClassName = result.GetType().GetRealTypeName(),
@@ -98,7 +98,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
 
   public override int ExecuteNonQuery()
   {
-    var tarceInfo = MakeInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteNonQuery));
+    var tarceInfo = CreateInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteNonQuery));
     try
     {
       var pars = _dbCommand.Parameters.Cast<DbParameter>().Select(s => new MockParameter()
@@ -108,7 +108,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
         Value = s.Value,
         ParameterDirection = s.Direction
       });
-      _traceStore.AddInputAsync(tarceInfo, new ServiceData()
+      _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "input",
         ClassName = _dbProviderType?.name,
@@ -121,7 +121,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
         }
       }).ConfigureAwait(true);
       var nonQuery = _dbCommand.ExecuteNonQuery();
-      _traceStore.AddOutputAsync(tarceInfo, new ServiceData()
+      _traceStore.AddOutputAsync(tarceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "executeCode",
         ClassName = nonQuery.GetType().GetRealTypeName(),
@@ -147,7 +147,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
 
   public IDataReader ExecuteReader()
   {
-    var tarceInfo = MakeInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteReader));
+    var tarceInfo = CreateInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteReader));
     var pars = _dbCommand.Parameters.Cast<DbParameter>().Select(s => new MockParameter()
     {
       Name = s.ParameterName,
@@ -155,7 +155,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
       Value = s.Value,
       ParameterDirection = s.Direction
     });
-    _traceStore.AddInputAsync(tarceInfo, new ServiceData()
+    _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "input",
       ClassName = _dbProviderType?.name ?? string.Empty,
@@ -174,7 +174,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
 
   public IDataReader ExecuteReader(CommandBehavior behavior)
   {
-    var tarceInfo = MakeInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteReader));
+    var tarceInfo = CreateInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteReader));
     var pars = _dbCommand.Parameters.Cast<DbParameter>().Select(s => new MockParameter()
     {
       Name = s.ParameterName,
@@ -182,7 +182,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
       Value = s.Value,
       ParameterDirection = s.Direction
     });
-    _traceStore.AddInputAsync(tarceInfo, new ServiceData()
+    _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "input",
       ClassName = _dbProviderType?.name ?? string.Empty,
@@ -201,7 +201,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
 
   public override object? ExecuteScalar()
   {
-    var tarceInfo = MakeInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteScalar));
+    var tarceInfo = CreateInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteScalar));
 
     try
     {
@@ -212,7 +212,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
         Value = s.Value,
         ParameterDirection = s.Direction
       });
-      _traceStore.AddInputAsync(tarceInfo, new ServiceData()
+      _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "input",
         ClassName = _dbProviderType?.name,
@@ -226,7 +226,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
       }).ConfigureAwait(true);
       object result = _dbCommand.ExecuteScalar();
       var resultType = result?.GetType() ?? typeof(object);
-      _traceStore.AddOutputAsync(tarceInfo, new ServiceData()
+      _traceStore.AddOutputAsync(tarceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "firstColumn",
         ClassName = resultType.GetRealTypeName(),
@@ -262,9 +262,9 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IReadFinis
 
   protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
   {
-    var tarceInfo = MakeInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteReader));
+    var tarceInfo = CreateInfo(Connection.GetType().GetRealTypeName() + " " + nameof(ExecuteReader));
     var pars = _dbCommand.Parameters.Cast<DbParameter>().Select(s => new MockParameter() { Name = s.ParameterName, Type = s.DbType.ToString(), Value = s.Value, ParameterDirection = s.Direction });
-    _traceStore.AddInputAsync(tarceInfo, new ServiceData()
+    _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "input",
       ClassName = _dbProviderType?.name,

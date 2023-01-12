@@ -23,9 +23,9 @@ public class DbProvider : IDbProvider
 public class DbProvider2 : IDbProvider
 {
   private readonly IDbProvider _dbProvider;
-  private readonly ScopeWathcer _scopeWathcer;
+  private readonly ScopeWatcher _scopeWathcer;
 
-  public DbProvider2(IDbProvider dbProvider, ScopeWathcer scopeWathcer)
+  public DbProvider2(IDbProvider dbProvider, ScopeWatcher scopeWathcer)
   {
     _dbProvider = dbProvider;
     _scopeWathcer = scopeWathcer;

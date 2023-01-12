@@ -38,7 +38,7 @@ public static class RegisterExtentions
   {
     if (!s.AllowRoutes.Allows.Any())
     {
-      s.AllowRoutes.Allows = new [] { "api" };
+      s.AllowRoutes.Allows = new [] { "/api" };
     }
   };
   internal static bool IsRegister
@@ -91,7 +91,7 @@ public static class RegisterExtentions
       services.AddTransient(typeof(IPipelineBehavior<,>), typeof(MediatorRequestTrace<,>));
       services.AddDbContext<MockTracerDbContext>(options =>
                options.UseSqlite("Filename=MockTracer.db"));
-      services.AddScoped<ScopeWathcer>();
+      services.AddScoped<ScopeWatcher>();
       services.AddOptions<MockTracerOption>().Configure<IConfiguration>((o, c) => c.Bind("MockTracer", o)).PostConfigure(configureOptions ?? defaultInit);
       services.AddScoped<TestClassGenerator>();
       services.AddSingleton(s => s.GetRequiredService<IOptions<MockTracerOption>>().Value.GenerationSetting);
@@ -223,7 +223,7 @@ public static class RegisterExtentions
         @interface,
         FieldAttributes.Private);
 
-    var scopeWathcerType = typeof(ScopeWathcer);
+    var scopeWathcerType = typeof(ScopeWatcher);
     FieldBuilder scopeWathcerField = tb.DefineField(
         "_scopeWathcer",
         scopeWathcerType,

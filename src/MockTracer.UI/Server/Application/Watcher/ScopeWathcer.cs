@@ -6,15 +6,20 @@ using MockTracer.UI.Server.Application.Storage;
 using MockTracer.UI.Shared.Entity;
 
 namespace MockTracer.UI.Server.Application.Watcher;
-public class ScopeWathcer : IDisposable
+
+/// <summary>
+/// scope store
+/// </summary>
+public class ScopeWatcher : IDisposable
 {
   private bool _disposedValue;
 
-  public Guid ScopeId { get; } = VariableMaster.Next();
-
   private readonly Stack<StackRow> _stack = new Stack<StackRow>();
+
   private int _counter = 1;
+
   private StackScope _scope;
+
   private readonly DumpOptions _sharpOptions = new DumpOptions()
   {
     TrimTrailingColonName = true,
@@ -24,15 +29,28 @@ public class ScopeWathcer : IDisposable
     IgnoreIndexers = true
   };
 
-  internal static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions() { WriteIndented = true };
   private readonly MockTracerDbContext _context;
 
-  public ScopeWathcer(IServiceProvider serviceProvider)
+  private readonly Guid ScopeId = VariableMaster.Next();
+
+  internal static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions() { WriteIndented = true };
+
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <param name="serviceProvider"><see cref="IServiceProvider"/></param>
+  public ScopeWatcher(IServiceProvider serviceProvider)
   {
     _context = serviceProvider.GetRequiredService<MockTracerDbContext>();
   }
 
-  public Task AddInputAsync(TraceInfo trace, params ServiceData[]? serviceData)
+  /// <summary>
+  /// Add input data
+  /// </summary>
+  /// <param name="trace"><see cref="TraceInfo"/></param>
+  /// <param name="serviceData"><see cref="ArgumentObjectInfo"/></param>
+  /// <exception cref="ArgumentNullException"></exception>
+  public Task AddInputAsync(TraceInfo trace, params ArgumentObjectInfo[]? serviceData)
   {
     if (trace is null)
     {
@@ -96,22 +114,45 @@ public class ScopeWathcer : IDisposable
     return Task.CompletedTask;
   }
 
-  private Input InputArgs(ServiceData item)
+  private Input InputArgs(ArgumentObjectInfo item)
   {
-    return new Input()
+    try
     {
-      Id = VariableMaster.Next(),
-      Name = item.ArgumentName,
-      ClassName = item.ClassName,
-      Namespace = item.Namespace,
-      AddInfo = item.AdvancedInfo != null ? JsonSerializer.Serialize(item.AdvancedInfo, JsonOptions) : null,
-      Json = JsonSerializer.Serialize(item.OriginalObject, JsonOptions),
-      ShortView = ObjectDumper.Dump(item.OriginalObject),
-      SharpCode = ObjectDumper.Dump(item.OriginalObject, _sharpOptions)
-    };
+      return new Input()
+      {
+        Id = VariableMaster.Next(),
+        Name = item.ArgumentName,
+        ClassName = item.ClassName,
+        Namespace = item.Namespace,
+        AddInfo = item.AdvancedInfo != null ? JsonSerializer.Serialize(item.AdvancedInfo, JsonOptions) : null,
+        Json = JsonSerializer.Serialize(item.OriginalObject, JsonOptions),
+        ShortView = ObjectDumper.Dump(item.OriginalObject),
+        SharpCode = ObjectDumper.Dump(item.OriginalObject, _sharpOptions)
+      };
+    }
+    catch (Exception ex)
+    {
+      return new Input()
+      {
+        Id = VariableMaster.Next(),
+        Name = item.ArgumentName,
+        ClassName = item.ClassName,
+        Namespace = item.Namespace,
+        Json = string.Empty,
+        ShortView = "don't serialised object: " + ex.ToString(),
+        SharpCode = $"/* don't serialised object  {ex.Message}*/",
+        IsFilled = false,
+      };
+    }
   }
 
-  public Task AddOutputAsync(TraceInfo trace, ServiceData? serviceData)
+  /// <summary>
+  /// add output info
+  /// </summary>
+  /// <param name="trace"><see cref="TraceInfo"/></param>
+  /// <param name="serviceData"><see cref="ArgumentObjectInfo"/></param>
+  /// <exception cref="ArgumentNullException"></exception>
+  public Task AddOutputAsync(TraceInfo trace, ArgumentObjectInfo? serviceData)
   {
     if (trace is null)
     {
@@ -128,9 +169,37 @@ public class ScopeWathcer : IDisposable
   }
 
 
-  private Output OutputArgs(ServiceData item)
+  private Output OutputArgs(ArgumentObjectInfo item)
   {
-    if (item.OriginalObject == null)
+    try
+    {
+      if (item.OriginalObject == null)
+      {
+        return new Output()
+        {
+          Id = VariableMaster.Next(),
+          Name = item.ArgumentName,
+          ClassName = item.ClassName,
+          Namespace = item.Namespace,
+          Json = string.Empty,
+          AddInfo = item.AdvancedInfo != null ? JsonSerializer.Serialize(item.AdvancedInfo, JsonOptions) : null,
+          ShortView = "null",
+          SharpCode = "null;"
+        };
+      }
+      return new Output()
+      {
+        Id = VariableMaster.Next(),
+        Name = item.ArgumentName,
+        ClassName = item.ClassName,
+        Namespace = item.Namespace,
+        AddInfo = item.AdvancedInfo != null ? JsonSerializer.Serialize(item.AdvancedInfo, JsonOptions) : null,
+        Json = JsonSerializer.Serialize(item.OriginalObject, JsonOptions),
+        ShortView = ObjectDumper.Dump(item.OriginalObject),
+        SharpCode = ObjectDumper.Dump(item.OriginalObject, _sharpOptions)
+      };
+    }
+    catch (Exception ex)
     {
       return new Output()
       {
@@ -139,38 +208,50 @@ public class ScopeWathcer : IDisposable
         ClassName = item.ClassName,
         Namespace = item.Namespace,
         Json = string.Empty,
-        AddInfo = item.AdvancedInfo != null ? JsonSerializer.Serialize(item.AdvancedInfo, JsonOptions) : null,
-        ShortView = "null",
-        SharpCode = "null;"
+        ShortView = "don't serialised object: " + ex.ToString(),
+        SharpCode = $"/* don't serialised object  {ex.Message} */",
+        IsFilled = false,
       };
     }
-    return new Output()
-    {
-      Id = VariableMaster.Next(),
-      Name = item.ArgumentName,
-      ClassName = item.ClassName,
-      Namespace = item.Namespace,
-      AddInfo = item.AdvancedInfo != null ? JsonSerializer.Serialize(item.AdvancedInfo, JsonOptions) : null,
-      Json = JsonSerializer.Serialize(item.OriginalObject, JsonOptions),
-      ShortView = ObjectDumper.Dump(item.OriginalObject),
-      SharpCode = ObjectDumper.Dump(item.OriginalObject, _sharpOptions)
-    };
   }
 
   private ExceptionType Exception(Exception ex)
   {
-    return new ExceptionType()
+    try
     {
-      Id = VariableMaster.Next(),
-      Name = "ex",
-      ClassName = ex.GetType().GetRealTypeName(),
-      Namespace = ex.GetType().Namespace,
-      Json = JsonSerializer.Serialize(ex, JsonOptions),
-      ShortView = ex.ToString(),
-      SharpCode = $@"new {ex.GetType().GetRealTypeName()}(""{ex.Message}"");"
-    };
+      return new ExceptionType()
+      {
+        Id = VariableMaster.Next(),
+        Name = "ex",
+        ClassName = ex.GetType().GetRealTypeName(),
+        Namespace = ex.GetType().Namespace,
+        Json = JsonSerializer.Serialize(ex, JsonOptions),
+        ShortView = ex.ToString(),
+        SharpCode = $@"new {ex.GetType().GetRealTypeName()}(""{ex.Message}"");"
+      };
+    }
+    catch (Exception)
+    {
+      return new ExceptionType()
+      {
+        Id = VariableMaster.Next(),
+        Name = "ex",
+        ClassName = ex.GetType().GetRealTypeName(),
+        Namespace = ex.GetType().Namespace,
+        Json = string.Empty,
+        ShortView = ex.ToString(),
+        SharpCode = $@"new {ex.GetType().GetRealTypeName()}(""{ex.Message}"");",
+        IsFilled = false,
+      };
+    }
   }
 
+  /// <summary>
+  /// save exception info
+  /// </summary>
+  /// <param name="trace"><see cref="TraceInfo"/></param>
+  /// <param name="ex">catched exception</param>
+  /// <exception cref="ArgumentNullException"></exception>
   public Task Catch(TraceInfo trace, Exception ex)
   {
     if (trace is null)
@@ -187,10 +268,10 @@ public class ScopeWathcer : IDisposable
 
     row.Exception = Exception(ex);
 
-
     return Task.CompletedTask;
   }
 
+  /// <inheritdoc/>
   protected virtual void Dispose(bool disposing)
   {
     if (!_disposedValue)
@@ -203,9 +284,9 @@ public class ScopeWathcer : IDisposable
           {
             _context.SaveChanges();
           }
-          catch (Exception)
+          catch (Exception ex)
           {
-            throw;
+            Console.WriteLine(ex);
           }
         }
         _context.Dispose();
@@ -214,6 +295,7 @@ public class ScopeWathcer : IDisposable
     }
   }
 
+  /// <inheritdoc/>
   public void Dispose()
   {
     Dispose(disposing: true);

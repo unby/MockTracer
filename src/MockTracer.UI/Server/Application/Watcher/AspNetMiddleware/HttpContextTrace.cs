@@ -19,13 +19,13 @@ public class HttpContextTrace : ITracer
     _options = options.Value.AllowRoutes;
   }
 
-  public async Task Invoke(HttpContext context, ScopeWathcer _scopeStore)
+  public async Task Invoke(HttpContext context, ScopeWatcher _scopeStore)
   {
     if (_options.IsWatch(context.Request.Path))
     {
       var request = await GetRequestAsync(context.Request);
-      var traceInfo = MakeInfo(request.req.FullPath);
-      await _scopeStore.AddInputAsync(traceInfo, new ServiceData()
+      var traceInfo = CreateInfo(request.req.FullPath);
+      await _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "request",
         Namespace = context.Request.GetType().Namespace,
@@ -52,7 +52,7 @@ public class HttpContextTrace : ITracer
         }
 
         var response = await GetResponseAsTextAsync(context.Response);
-        await _scopeStore.AddOutputAsync(traceInfo, new ServiceData()
+        await _scopeStore.AddOutputAsync(traceInfo, new ArgumentObjectInfo()
         {
           ArgumentName = "response",
           ClassName = context.Response.GetType().GetRealTypeName(),
@@ -69,7 +69,7 @@ public class HttpContextTrace : ITracer
     }
   }
 
-  public TraceInfo MakeInfo(string title)
+  public TraceInfo CreateInfo(string title)
   {
     return new TraceInfo()
     {

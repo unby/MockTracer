@@ -4,24 +4,30 @@ using MockTracer.UI.Server.Application.Generation;
 
 namespace MockTracer.UI.Server.Application.Watcher;
 
+/// <summary>
+/// Mediator behavior trace
+/// </summary>
+/// <typeparam name="TRequest"></typeparam>
+/// <typeparam name="TResponse"></typeparam>
 public class MediatorRequestTrace<TRequest, TResponse>
     : ITracer,
       IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-  private readonly ScopeWathcer _traceStore;
+  private readonly ScopeWatcher _traceStore;
 
-  public MediatorRequestTrace(ScopeWathcer traceStore)
+  public MediatorRequestTrace(ScopeWatcher traceStore)
   {
     _traceStore = traceStore;
   }
 
+  /// <inheritdoc/>
   public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
   {
-    var info = MakeInfo(request.GetType().FullName);
+    var info = CreateInfo(request.GetType().FullName);
     try
     {
       var requestType = typeof(TRequest);
-      await _traceStore.AddInputAsync(info, new ServiceData()
+      await _traceStore.AddInputAsync(info, new ArgumentObjectInfo()
       {
         ArgumentName = nameof(request),
         ClassName = requestType.GetRealTypeName(),
@@ -30,7 +36,7 @@ public class MediatorRequestTrace<TRequest, TResponse>
       });
       var response = await next();
       var responseType = typeof(TResponse);
-      await _traceStore.AddOutputAsync(info, new ServiceData()
+      await _traceStore.AddOutputAsync(info, new ArgumentObjectInfo()
       {
         ArgumentName = nameof(response),
         ClassName = responseType.GetRealTypeName(),
@@ -46,7 +52,8 @@ public class MediatorRequestTrace<TRequest, TResponse>
     }
   }
 
-  public TraceInfo MakeInfo(string title)
+  /// <inheritdoc/>
+  public TraceInfo CreateInfo(string title)
   {
     return new TraceInfo()
     {

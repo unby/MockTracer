@@ -22,8 +22,8 @@ public class HttpClientMockBuilder : MockBuilderBase
     {
       var input = row.Input.First();
 
-      var request = JsonSerializer.Deserialize<TraceHttpRequest>(input.AddInfo, ScopeWathcer.JsonOptions);
-      var response = JsonSerializer.Deserialize<TraceHttpReponse>(row.Output.AddInfo, ScopeWathcer.JsonOptions);
+      var request = JsonSerializer.Deserialize<TraceHttpRequest>(input.AddInfo, ScopeWatcher.JsonOptions);
+      var response = JsonSerializer.Deserialize<TraceHttpReponse>(row.Output.AddInfo, ScopeWatcher.JsonOptions);
       var status = (HttpStatusCode)response.StatusCode;
       //  HttpMethod.Get TraceHttpReponse TraceHttpRequest
       var output = string.Empty; 

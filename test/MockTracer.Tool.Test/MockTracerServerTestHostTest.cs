@@ -28,7 +28,7 @@ public class MockTracerServerTestHostTest : ToolTestBase
     [Fact]
     public void Should_register_tool()
     {
-        Assert.NotNull(NewServer().GetInstance<ScopeWathcer>());
+        Assert.NotNull(NewServer().GetInstance<ScopeWatcher>());
     }
 
     [Fact]

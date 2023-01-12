@@ -24,6 +24,6 @@ public class TestHostAppTest : SampleTestBase
     [Fact]
     public async Task Should_not_register_toolAsync()
     {
-        await Assert.ThrowsAsync<Exception>(() => Task.FromResult(NewServer().GetInstance<ScopeWathcer>()));
+        await Assert.ThrowsAsync<Exception>(() => Task.FromResult(NewServer().GetInstance<ScopeWatcher>()));
     }
 }

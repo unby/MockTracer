@@ -9,7 +9,7 @@ namespace MockTracer.UI.Server.Application.Watcher.Database;
 public class DBConnectionTracer : DbConnection, IDbConnection
 {
   private readonly DbConnection _dbConnection;
-  private readonly ScopeWathcer _traceStore;
+  private readonly ScopeWatcher _traceStore;
   private readonly Type? _dbProviderType;
 
   /// <summary>
@@ -19,7 +19,7 @@ public class DBConnectionTracer : DbConnection, IDbConnection
   /// <param name="traceStore">traceStore from DI</param>
   /// <param name="dbProviderType">don't set this arguments</param>
   /// <exception cref="ArgumentException"></exception>
-  public DBConnectionTracer(IDbConnection dbConnection, ScopeWathcer traceStore, Type? dbProviderType = null)
+  public DBConnectionTracer(IDbConnection dbConnection, ScopeWatcher traceStore, Type? dbProviderType = null)
   {
     _dbConnection = dbConnection as DbConnection ?? throw new ArgumentException(nameof(dbConnection)); ;
     _traceStore = traceStore;

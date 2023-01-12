@@ -16,7 +16,7 @@ public class HttpContextBuilder : TracerBuilderBase
   public override IEnumerable<LineFragment> BuildFragments(StackRow input)
   {
     var data = input.Input.FirstOrDefault();
-    var request = JsonSerializer.Deserialize<TraceHttpRequest>(data.Json, ScopeWathcer.JsonOptions);
+    var request = JsonSerializer.Deserialize<TraceHttpRequest>(data.Json, ScopeWatcher.JsonOptions);
 
     var result = new List<LineFragment>();
     try
