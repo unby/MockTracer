@@ -19,7 +19,7 @@ public class BuilderResolver : IBuilderResolver
       case Constants.HttpContext:
         return _service.GetRequiredService<HttpContextBuilder>();
       case Constants.Mediatr:
-        throw new NotImplementedException(tracerCode);
+        return _service.GetRequiredService<MediatrInputBuilder>();
       case Constants.MvcActionFilter:
         return _service.GetRequiredService<MvcFilterBuilder>();
       case Constants.DbConnection:

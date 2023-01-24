@@ -33,7 +33,7 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
 
   private readonly Guid ScopeId = VariableMaster.Next();
 
-  internal static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions() { WriteIndented = true };
+  internal static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions() { WriteIndented = true, PropertyNameCaseInsensitive = true };
 
   /// <summary>
   /// 
@@ -266,6 +266,7 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
   {
     if (!_disposedValue)
     {
+      Console.WriteLine("dispose");
       if (disposing)
       {
         if (_scope != null)

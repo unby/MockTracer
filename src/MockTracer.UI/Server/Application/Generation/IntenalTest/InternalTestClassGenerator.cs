@@ -12,7 +12,7 @@ namespace MockTracer.UI.Server.Application.Generation.IntenalTest;
 public class InternalTestClassGenerator
 {
   private MockTracerDbContext _context;
-  private readonly DumpOptions _sharpOptions = new DumpOptions() { TrimTrailingColonName = true, TrimInitialVariableName = true, DumpStyle = DumpStyle.CSharp, IgnoreDefaultValues = true, IgnoreIndexers = true };
+  private readonly DumpOptions _sharpOptions = new DumpOptions() { TrimTrailingColonName = true, TrimInitialVariableName = true, DumpStyle = DumpStyle.CSharp, IgnoreDefaultValues = true,  SetPropertiesOnly = true, IgnoreIndexers = true };
   public InternalTestClassGenerator(MockTracerDbContext context)
   {
     _context = context;
@@ -32,9 +32,11 @@ public class InternalTestClassGenerator
     {
       item.ShortView = string.Empty;
     }
-    var className = $"{scope.FirstType}_{scope.Title}_test".ClearFileName();
+    var firstPart = scope.Stack.First(w => w.Id == @params.InputId)?.TracerType ?? "Billet";
+    var secondPartName = string.Join("_", scope.Stack.Where(w => @params.OutputId.Contains(w.Id)).Select(s => s.TracerType).Distinct());
+    var className = $"Input_{firstPart}_Mocks_{secondPartName}_test".ClearFileName();
 
-    return new TestFile() { SourceCode = BuildFile(ObjectDumper.Dump(scope, _sharpOptions), ObjectDumper.Dump(@params, _sharpOptions), className, scope.FirstType), FileName = className + ".cs" };
+    return new TestFile() { SourceCode = BuildFile(ObjectDumper.Dump(scope, _sharpOptions), ObjectDumper.Dump(@params, _sharpOptions), firstPart, scope.FirstType), FileName = className + ".cs" };
   }
 
   private string BuildFile(string data, string @params, string className, string method)

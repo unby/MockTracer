@@ -4,8 +4,15 @@ using MockTracer.UI.Server.Options;
 
 namespace MockTracer.UI.Server.Application.Generation;
 
+/// <summary>
+/// TemplateBuilderBase
+/// </summary>
 public abstract class TemplateBuilderBase : ITemplateBuilder
 {
+  /// <summary>
+  /// Template variable list
+  /// Order is important
+  /// </summary>
   private static string[] ReplaceSpaces = new string[]
   {
     "{{using}}", "{{nameSpace}}", "{{nameSpace[}}", "{{nameSpace]}}",
@@ -13,8 +20,15 @@ public abstract class TemplateBuilderBase : ITemplateBuilder
     "{{Prepare}}", "{{Action}}", "{{Assert}}", "{{BigVariable}}", "(s) => {{Configure}}", "{{Configure}}" 
   };
 
+  /// <summary>
+  /// Build units factory 
+  /// </summary>
   protected readonly IBuilderResolver _builderResolver;
 
+  /// <summary>
+  /// TemplateBuilderBase
+  /// </summary>
+  /// <param name="builderResolver"><see cref="IBuilderResolver"/></param>
   protected TemplateBuilderBase(IBuilderResolver builderResolver)
   {
     _builderResolver = builderResolver;
