@@ -21,7 +21,6 @@ public class HttpClientTest : SampleTestBase
     {
         // prepare
         var builder = new HttpRequestInterceptionBuilder().Requests().For(f => f.Method == HttpMethod.Get && f.RequestUri.AbsolutePath.EndsWith("fact"))
-                   //.ForQuery($"idTariffStandardDecision=323672&dateFrom={DateTime.Now.ToString("yyyy-MM-dd")}")
                    .Responds().WithMediaType("application/json")
                    .WithContent(() => Encoding.UTF8.GetBytes(@"{
   ""fact"": ""The domestic cat is the only species able to hold its tail vertically while walking. You can also learn about your cat's present state of mind by observing the posture of his tail."",

@@ -12,7 +12,7 @@ public class BuilderResolver : IBuilderResolver
   {
     _service = service;
   }
-  public TracerBuilderBase ResolveInputBuilder(string tracerCode)
+  public InputPointBuilderBase ResolveInputBuilder(string tracerCode)
   {
     switch (tracerCode)
     {
@@ -29,7 +29,7 @@ public class BuilderResolver : IBuilderResolver
     }
   }
 
-  public MockBuilderBase ResolveMockBuilder(string tracerCode)
+  public MockPointBuilderBase ResolveMockBuilder(string tracerCode)
   {
     switch (tracerCode)
     {
@@ -42,6 +42,7 @@ public class BuilderResolver : IBuilderResolver
       case Constants.DbConnection:
         return _service.GetRequiredService<DbConnectionMockBuilder>();
       case Constants.Custom:
+        return _service.GetRequiredService<DbConnectionMockBuilder>();
       case Constants.MvcActionFilter:
       default:
         throw new NotImplementedException(tracerCode);

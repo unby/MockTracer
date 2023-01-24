@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Net.Mime;
 using System.Reflection;
 using System.Reflection.Emit;
+using Castle.DynamicProxy;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using MockTracer.UI.Server;
@@ -38,7 +40,7 @@ public static class RegisterExtentions
   {
     if (!s.AllowRoutes.Allows.Any())
     {
-      s.AllowRoutes.Allows = new [] { "/api" };
+      s.AllowRoutes.Allows = new[] { "/api" };
     }
   };
   internal static bool IsRegister
@@ -100,6 +102,7 @@ public static class RegisterExtentions
       services.AddControllers(o => o.Filters.Add<ActionFilterTracer>()).AddJsonOptions(options => { });
       services.RegisterGenerator();
       services.AddScoped<HttpClientTraceHandler>();
+      services.AddScoped<VirtualTraceInterceptor>();
       services.PostConfigureAll<HttpClientFactoryOptions>(options =>
       {
         options.HttpMessageHandlerBuilderActions.Add(builder =>
@@ -183,7 +186,25 @@ public static class RegisterExtentions
     services.Decorate(typeof(T), t);
     return services;
   }
+  private static readonly ProxyGenerator _generator = new ProxyGenerator();
+  /// <summary>
+  /// Create proxy trace type <see cref="DBConnectionTracer"/>
+  /// </summary>
+  /// <typeparam name="T">simple interface with { DbConnection Get() ;} methods</typeparam>
+  /// <param name="services"><see cref="IServiceCollection"/></param>
+  /// <returns><see cref="IServiceCollection"/></returns>
+  public static IServiceCollection DecorateVirtual<T>(this IServiceCollection services)
+  {
+    var type = typeof(T);
+    services.Decorate(type, (t, s) =>
+    {
+      var traceInterceptor = s.GetRequiredService<VirtualTraceInterceptor>();
+      var n= _generator.CreateInterfaceProxyWithTargetInterface(type,t , traceInterceptor);
+      return n;
+    });
 
+    return services;
+  }
 
   /// <summary>
   /// Create type with logic decorate of dbConnection provider
@@ -325,8 +346,6 @@ public static class RegisterExtentions
         await next(context);
       });
 
-      // subBuilder.UseMiddleware<ContentEncodingNegotiator>();
-
       subBuilder.UseStaticFiles(options);
     });
 
@@ -340,7 +359,7 @@ public static class RegisterExtentions
 
     if (!isApiRequest)
     {
-      context.Response.SendFileAsync(MemoryFileInfo.Index); // This is a request for a web page so just do the normal out-of-the-box behaviour.
+      await context.Response.SendFileAsync(MemoryFileInfo.Index); // This is a request for a web page so just do the normal out-of-the-box behaviour.
     }
     else
     {

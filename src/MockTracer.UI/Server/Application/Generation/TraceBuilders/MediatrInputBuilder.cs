@@ -9,18 +9,18 @@ using MockTracer.UI.Shared.Entity;
 namespace MockTracer.UI.Server.Application.Generation.TraceBuilders;
 
 /// <summary>
-/// http client call
+/// Mediatr input point
 /// </summary>
-public class MvcFilterBuilder : InputPointBuilderBase
+public class MediatrInputBuilder : InputPointBuilderBase
 {
   private static readonly TextInfo _textInfo = new CultureInfo("en-US", false).TextInfo;
   private static readonly string[] AccesMethod = new string[] { "POST", "PATCH" };
 
   /// <summary>
-  /// MvcFilterBuilder
+  /// MediatrInputBuilder
   /// </summary>
   /// <param name="nameReslover"><see cref="VariableNameReslover"/></param>
-  public MvcFilterBuilder(VariableNameReslover nameReslover) : base(nameReslover)
+  public MediatrInputBuilder(VariableNameReslover nameReslover) : base(nameReslover)
   {
   }
 
@@ -60,11 +60,11 @@ public class MvcFilterBuilder : InputPointBuilderBase
 
     try
     {
-     
+
       if (row.Output?.SharpCode != null)
       {
         var type = row.Output.FullName.FindType();
-        if(type == null)
+        if (type == null)
         {
           result.Add(BuildingConstans.Assert.Line($"// Unknown type {row.Output.FullName}"));
         }
@@ -77,7 +77,7 @@ public class MvcFilterBuilder : InputPointBuilderBase
           result.Add(BuildingConstans.Assert.Line($"Assert.Equal(\"{row.Output.SharpCode}\", httpResult.Content.ReadAsStringAsync().Result);"));
         }
       }
-     
+
     }
     catch (Exception ex)
     {

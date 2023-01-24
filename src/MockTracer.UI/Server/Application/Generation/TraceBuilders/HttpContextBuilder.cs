@@ -6,7 +6,7 @@ using MockTracer.UI.Shared.Entity;
 
 namespace MockTracer.UI.Server.Application.Generation.TraceBuilders;
 
-public class HttpContextBuilder : TracerBuilderBase
+public class HttpContextBuilder : InputPointBuilderBase
 {
    public HttpContextBuilder(VariableNameReslover nameReslover)
     : base(nameReslover)

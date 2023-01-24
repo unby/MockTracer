@@ -22,7 +22,7 @@ public class HttpClientTraceHandler : DelegatingHandler, ITracer
   protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
   {
     var traceInfo = CreateInfo(request.RequestUri.AbsolutePath);
-    await _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
+    _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "request",
       ClassName = request.GetType().GetRealTypeName(),
@@ -32,7 +32,7 @@ public class HttpClientTraceHandler : DelegatingHandler, ITracer
       {
         FullPath = request.RequestUri.ToString(),
         Path = request.RequestUri.AbsolutePath,
-        ContentType = request.Content?.Headers?.ContentType?.MediaType.ToString(),
+        ContentType = request.Content?.Headers?.ContentType?.MediaType?.ToString(),
         Method = request.Method.ToString()
       }
     });
@@ -41,7 +41,7 @@ public class HttpClientTraceHandler : DelegatingHandler, ITracer
       HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
 
       var result = await ResolveResponseAsync(response, traceInfo);
-      await _scopeStore.AddOutputAsync(traceInfo, new ArgumentObjectInfo()
+      _scopeStore.AddOutputAsync(traceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "response",
         ClassName = result.className,
@@ -57,7 +57,7 @@ public class HttpClientTraceHandler : DelegatingHandler, ITracer
     }
     catch (Exception ex)
     {
-      await _scopeStore.Catch(traceInfo, ex);
+      _scopeStore.Catch(traceInfo, ex);
       throw;
     }
   }

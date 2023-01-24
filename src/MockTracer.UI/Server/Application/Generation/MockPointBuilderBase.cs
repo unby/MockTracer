@@ -2,9 +2,9 @@
 
 namespace MockTracer.UI.Server.Application.Generation;
 
-public abstract class MockBuilderBase : BuilderBase
+public abstract class MockPointBuilderBase : BuilderBase
 {
-  protected MockBuilderBase(VariableNameReslover nameReslover)
+  protected MockPointBuilderBase(VariableNameReslover nameReslover)
     : base(nameReslover)
   {
   }

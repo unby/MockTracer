@@ -25,7 +25,7 @@ public class HttpContextTrace : ITracer
     {
       var request = await GetRequestAsync(context.Request);
       var traceInfo = CreateInfo(request.req.FullPath);
-      await _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
+      _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "request",
         Namespace = context.Request.GetType().Namespace,
@@ -47,12 +47,12 @@ public class HttpContextTrace : ITracer
         }
         catch (Exception ex)
         {
-          await _scopeStore.Catch(traceInfo, ex);
+           _scopeStore.Catch(traceInfo, ex);
           throw;
         }
 
         var response = await GetResponseAsTextAsync(context.Response);
-        await _scopeStore.AddOutputAsync(traceInfo, new ArgumentObjectInfo()
+        _scopeStore.AddOutputAsync(traceInfo, new ArgumentObjectInfo()
         {
           ArgumentName = "response",
           ClassName = context.Response.GetType().GetRealTypeName(),

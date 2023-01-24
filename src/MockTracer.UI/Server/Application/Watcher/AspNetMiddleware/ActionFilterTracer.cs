@@ -37,7 +37,7 @@ public class ActionFilterTracer : IAsyncActionFilter, ITracer
       var httpRequest = new TraceHttpRequest() { Method = request.Method, ContentType = request.ContentType, FullPath = $"{request.Path}{request.QueryString}".Trim('?'), Path = request.Path };
 
       var traceInfo = CreateInfo(httpRequest.FullPath);
-      await _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
+      _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "request",
         Namespace = obj?.GetType().Namespace ?? string.Empty,
@@ -50,7 +50,7 @@ public class ActionFilterTracer : IAsyncActionFilter, ITracer
 
       if (result.Exception != null)
       {
-        await _scopeStore.Catch(traceInfo, result.Exception);
+        _scopeStore.Catch(traceInfo, result.Exception);
       }
       else
       {
@@ -66,7 +66,7 @@ public class ActionFilterTracer : IAsyncActionFilter, ITracer
           objResponse = objectResult.Value;
         }
 
-        await _scopeStore.AddOutputAsync(traceInfo, new ArgumentObjectInfo()
+        _scopeStore.AddOutputAsync(traceInfo, new ArgumentObjectInfo()
         {
           ArgumentName = "request",
           Namespace = objResponse?.GetType().Namespace ?? string.Empty,

@@ -35,7 +35,7 @@ public class Startup
     services.AddDbContext<BlogDbContext>(options =>
                     options.UseSqlite("Filename=Blog.db"));
     services.AddRefitClient<ICatService>().ConfigureHttpClient(c => c.BaseAddress = new Uri(Configuration.GetValue<string>("CatApiUrl")));
-    services.UseMockTracerUiService((s) => s.DecorateDbProvider<IDbProvider>());
+    services.UseMockTracerUiService((s) => { s.DecorateDbProvider<IDbProvider>(); s.DecorateVirtual<IDataSource>(); });
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,8 +1,9 @@
-﻿using System.Data.Common;
+﻿using System.Collections.Concurrent;
 using System.Data;
+using System.Data.Common;
 using System.Net.Http.Headers;
-using System.Reflection.Emit;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.Json;
 using Apps72.Dev.Data.DbMocker;
 using Microsoft.AspNetCore.Hosting;
@@ -12,14 +13,22 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using MockTracer.Test;
 using Moq;
-using System.Collections.Concurrent;
 
 namespace MockTracer.Test;
 
+/// <summary>
+/// testing helpers
+/// </summary>
 public static class MockTracerExtention
 {
   private static ConcurrentDictionary<Type, Type> _typeCash = new ConcurrentDictionary<Type, Type>();
 
+  /// <summary>
+  /// Http client target on test server
+  /// </summary>
+  /// <param name="testServer"><see cref="IHost"/></param>
+  /// <param name="configureHttpClient">configure action</param>
+  /// <returns><see cref="HttpClient"/></returns>
   public static HttpClient GetHttpClient(this IHost testServer, Action<HttpClient>? configureHttpClient = null)
   {
     var client = testServer.GetTestClient();
@@ -28,6 +37,12 @@ public static class MockTracerExtention
     return client;
   }
 
+  /// <summary>
+  /// Http client target on test server
+  /// </summary>
+  /// <param name="testServer"><see cref="IWebHost"/></param>
+  /// <param name="configureHttpClient">configure action</param>
+  /// <returns><see cref="HttpClient"/></returns>
   public static HttpClient GetHttpClient(this IWebHost testServer, Action<HttpClient>? configureHttpClient = null)
   {
     var client = testServer.GetTestClient();
@@ -36,6 +51,12 @@ public static class MockTracerExtention
     return client;
   }
 
+  /// <summary>
+  /// Deserialize http response
+  /// </summary>
+  /// <typeparam name="T">target type</typeparam>
+  /// <param name="response"><see cref="HttpResponseMessage"/></param>
+  /// <returns>target type</returns>
   public static T? ReadJson<T>(this HttpResponseMessage response)
       where T : class
   {
@@ -49,16 +70,21 @@ public static class MockTracerExtention
     return obj;
   }
 
+  /// <summary>
+  /// Serialize object to JSON and convert array of bytes
+  /// </summary>
+  /// <param name="response">object</param>
+  /// <returns>array of bytes</returns>
   public static byte[] ToUtf8Bytes(this object response)
   {
     return JsonSerializer.SerializeToUtf8Bytes(response);
   }
 
   /// <summary>
-  /// Сериализует объект в HttpContent
+  /// Serialize object to HttpContent
   /// </summary>
-  /// <param name="data">исходный объект</param>
-  /// <returns>готовый HttpContent объекта data</returns>
+  /// <param name="data">object</param>
+  /// <returns><see cref="HttpContent"/></returns>
   public static HttpContent ToHttpContent(this object data)
   {
     var content = JsonSerializer.Serialize(data);
@@ -69,18 +95,40 @@ public static class MockTracerExtention
     return byteContent;
   }
 
+  /// <summary>
+  /// Get instance from builded DI
+  /// </summary>
+  /// <typeparam name="T">Type</typeparam>
+  /// <param name="host"><see cref="IHost"/></param>
+  /// <returns>type from generic argument</returns>
+  /// <exception cref="Exception"></exception>
   public static T GetInstance<T>(this IHost host)
   {
     var result = host.Services.GetService<T>();
     return result ?? throw new Exception($"{typeof(T)} doesn't find");
   }
 
+  /// <summary>
+  /// Get instance from builded DI
+  /// </summary>
+  /// <typeparam name="T">Type</typeparam>
+  /// <param name="host"><see cref="IHost"/></param>
+  /// <returns>type from generic argument</returns>
+  /// <exception cref="Exception"></exception>
   public static T GetInstance<T>(this IWebHost host)
   {
     var result = host.Services.GetService<T>();
     return result ?? throw new Exception($"{typeof(T)} doesn't find");
   }
 
+  /// <summary>
+  /// replace specific type 
+  /// </summary>
+  /// <typeparam name="T">replaced type</typeparam>
+  /// <param name="services"><see cref="IServiceCollection"/></param>
+  /// <param name="moq">new instance</param>
+  /// <param name="lifetime"><see cref="ServiceLifetime"/></param>
+  /// <returns><see cref="IServiceCollection"/></returns>
   public static IServiceCollection Replace<T>(this IServiceCollection services, Mock<T> moq, ServiceLifetime lifetime = ServiceLifetime.Scoped)
       where T : class
   {
@@ -89,6 +137,14 @@ public static class MockTracerExtention
     return services;
   }
 
+  /// <summary>
+  /// replace specific type 
+  /// </summary>
+  /// <typeparam name="T">replaced type</typeparam>
+  /// <param name="services"><see cref="IServiceCollection"/></param>
+  /// <param name="instance">new instance</param>
+  /// <param name="lifetime"><see cref="ServiceLifetime"/></param>
+  /// <returns><see cref="IServiceCollection"/></returns>
   public static IServiceCollection Replace<T>(this IServiceCollection services, object instance, ServiceLifetime lifetime = ServiceLifetime.Scoped)
       where T : class
   {

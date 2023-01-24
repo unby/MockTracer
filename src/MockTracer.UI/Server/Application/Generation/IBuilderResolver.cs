@@ -2,9 +2,9 @@
 
 public interface IBuilderResolver
 {
-  TracerBuilderBase ResolveInputBuilder(string tracerCode);
+  InputPointBuilderBase ResolveInputBuilder(string tracerCode);
 
   ITemplateBuilder ResolveTemplateBuilder(string templateCode);
 
-  MockBuilderBase ResolveMockBuilder(string tracerCode);
+  MockPointBuilderBase ResolveMockBuilder(string tracerCode);
 }

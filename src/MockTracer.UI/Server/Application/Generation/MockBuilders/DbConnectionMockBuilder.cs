@@ -8,7 +8,7 @@ using DataSet = MockTracer.UI.Server.Application.Watcher.Database.DataSet;
 
 namespace MockTracer.UI.Server.Application.Generation.MockBuilders;
 
-public class DbConnectionMockBuilder : MockBuilderBase
+public class DbConnectionMockBuilder : MockPointBuilderBase
 {
   private readonly DumpOptions _arraySharpOptions = new DumpOptions()
   {

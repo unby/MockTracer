@@ -90,7 +90,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
           ParameterDirection = s.Direction,
         }).Where(w => w.ParameterDirection != ParameterDirection.Input).ToList(),
         Namespace = result.GetType().Namespace,
-      }).ConfigureAwait(true);
+      });
     }
     _dbCommand.Dispose();
     _traceInfo = null;
@@ -119,7 +119,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
           CommandText = CommandText,
           Parameters = pars.ToList()
         }
-      }).ConfigureAwait(true);
+      });
       var nonQuery = _dbCommand.ExecuteNonQuery();
       _traceStore.AddOutputAsync(tarceInfo, new ArgumentObjectInfo()
       {
@@ -134,7 +134,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
           ParameterDirection = s.Direction
         }).Where(w => w.ParameterDirection != ParameterDirection.Input).ToList(),
         Namespace = nonQuery.GetType().Namespace,
-      }).ConfigureAwait(true);
+      });
 
       return nonQuery;
     }
@@ -166,7 +166,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
         CommandText = CommandText,
         Parameters = pars.ToList()
       }
-    }).ConfigureAwait(true);
+    });
     var reader = new MockerDataReader(_dbCommand.ExecuteReader(), this);
     _isRunAsync = true;
     return reader;
@@ -193,7 +193,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
         CommandText = CommandText,
         Parameters = pars.ToList()
       }
-    }).ConfigureAwait(true);
+    });
     var reader = new MockerDataReader(_dbCommand.ExecuteReader(behavior), this);
     _isRunAsync = true;
     return reader;
@@ -223,7 +223,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
           CommandText = CommandText,
           Parameters = pars.ToList()
         }
-      }).ConfigureAwait(true);
+      });
       object result = _dbCommand.ExecuteScalar();
       var resultType = result?.GetType() ?? typeof(object);
       _traceStore.AddOutputAsync(tarceInfo, new ArgumentObjectInfo()
@@ -239,7 +239,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
           ParameterDirection = s.Direction
         }).Where(w => w.ParameterDirection != ParameterDirection.Input).ToList(),
         Namespace = resultType.Namespace,
-      }).ConfigureAwait(true);
+      });
 
       return result;
     }
@@ -275,7 +275,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
         CommandText = CommandText,
         Parameters = pars.ToList()
       }
-    }).ConfigureAwait(true);
+    });
     _isRunAsync = true;
     return new MockerDataReader(_dbCommand.ExecuteReader(), this);
   }

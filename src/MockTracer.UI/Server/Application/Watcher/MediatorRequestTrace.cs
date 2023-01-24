@@ -27,7 +27,7 @@ public class MediatorRequestTrace<TRequest, TResponse>
     try
     {
       var requestType = typeof(TRequest);
-      await _traceStore.AddInputAsync(info, new ArgumentObjectInfo()
+      _traceStore.AddInputAsync(info, new ArgumentObjectInfo()
       {
         ArgumentName = nameof(request),
         ClassName = requestType.GetRealTypeName(),
@@ -36,7 +36,7 @@ public class MediatorRequestTrace<TRequest, TResponse>
       });
       var response = await next();
       var responseType = typeof(TResponse);
-      await _traceStore.AddOutputAsync(info, new ArgumentObjectInfo()
+      _traceStore.AddOutputAsync(info, new ArgumentObjectInfo()
       {
         ArgumentName = nameof(response),
         ClassName = responseType.GetRealTypeName(),
@@ -47,7 +47,7 @@ public class MediatorRequestTrace<TRequest, TResponse>
     }
     catch (Exception ex)
     {
-      await _traceStore.Catch(info, ex);
+      _traceStore.Catch(info, ex);
       throw;
     }
   }

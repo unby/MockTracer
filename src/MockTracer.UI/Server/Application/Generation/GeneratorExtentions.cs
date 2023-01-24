@@ -12,7 +12,7 @@ public static class GeneratorExtentions
     services.AddScoped<IBuilderResolver, BuilderResolver>();
     
     services.AddScoped<XunitMockTemplateBuilder>();
-    services.RegisterByInterface<TracerBuilderBase>().RegisterByInterface<MockBuilderBase>();
+    services.RegisterByInterface<InputPointBuilderBase>().RegisterByInterface<MockPointBuilderBase>();
     services.AddScoped<InternalTestClassGenerator>();
     services.AddScoped<VariableNameReslover>();
     return services;

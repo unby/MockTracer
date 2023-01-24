@@ -3,7 +3,7 @@ using MockTracer.UI.Shared.Entity;
 
 namespace MockTracer.UI.Server.Application.Generation.MockBuilders;
 
-public class HttpContextMockBuilder : MockBuilderBase
+public class HttpContextMockBuilder : MockPointBuilderBase
 {
   public HttpContextMockBuilder(VariableNameReslover nameReslover)
     : base(nameReslover)

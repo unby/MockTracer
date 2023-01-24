@@ -10,7 +10,7 @@ namespace MockTracer.UI.Server.Application.Watcher;
 /// <summary>
 /// scope store
 /// </summary>
-public class ScopeWatcher : IDisposable
+public class ScopeWatcher : IDisposable, IScopeWatcher
 {
   private bool _disposedValue;
 
@@ -50,7 +50,7 @@ public class ScopeWatcher : IDisposable
   /// <param name="trace"><see cref="TraceInfo"/></param>
   /// <param name="serviceData"><see cref="ArgumentObjectInfo"/></param>
   /// <exception cref="ArgumentNullException"></exception>
-  public Task AddInputAsync(TraceInfo trace, params ArgumentObjectInfo[]? serviceData)
+  public void AddInputAsync(TraceInfo trace, params ArgumentObjectInfo[]? serviceData)
   {
     if (trace is null)
     {
@@ -111,7 +111,6 @@ public class ScopeWatcher : IDisposable
     }
     _stack.Push(stackRow);
     _scope.Stack.Add(stackRow);
-    return Task.CompletedTask;
   }
 
   private Input InputArgs(ArgumentObjectInfo item)
@@ -152,20 +151,13 @@ public class ScopeWatcher : IDisposable
   /// <param name="trace"><see cref="TraceInfo"/></param>
   /// <param name="serviceData"><see cref="ArgumentObjectInfo"/></param>
   /// <exception cref="ArgumentNullException"></exception>
-  public Task AddOutputAsync(TraceInfo trace, ArgumentObjectInfo? serviceData)
+  public void AddOutputAsync(TraceInfo trace, ArgumentObjectInfo? serviceData)
   {
-    if (trace is null)
-    {
-      throw new ArgumentNullException(nameof(trace));
-    }
-
     var row = _stack.Pop();
     if (serviceData != null)
     {
       row.Output = OutputArgs(serviceData);
     }
-
-    return Task.CompletedTask;
   }
 
 
@@ -252,7 +244,7 @@ public class ScopeWatcher : IDisposable
   /// <param name="trace"><see cref="TraceInfo"/></param>
   /// <param name="ex">catched exception</param>
   /// <exception cref="ArgumentNullException"></exception>
-  public Task Catch(TraceInfo trace, Exception ex)
+  public void Catch(TraceInfo trace, Exception ex)
   {
     if (trace is null)
     {
@@ -267,8 +259,6 @@ public class ScopeWatcher : IDisposable
     var row = _stack.Pop();
 
     row.Exception = Exception(ex);
-
-    return Task.CompletedTask;
   }
 
   /// <inheritdoc/>
