@@ -89,7 +89,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
   }
 
   /// <inheritdoc/>
-  public IDbDataParameter CreateParameter()
+  public new IDbDataParameter CreateParameter()
   {
     return _dbCommand.CreateParameter();
   }
@@ -135,8 +135,8 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
       _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "input",
-        ClassName = _dbProviderType?.name,
-        Namespace = _dbProviderType?.nameSpace,
+        ClassName = _dbProviderType.name,
+        Namespace = _dbProviderType.nameSpace,
         OriginalObject = new DbCommandInput()
         {
           CommandType = CommandType,
@@ -183,8 +183,8 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
     _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "input",
-      ClassName = _dbProviderType?.name ?? string.Empty,
-      Namespace = _dbProviderType?.nameSpace,
+      ClassName = _dbProviderType.name,
+      Namespace = _dbProviderType.nameSpace,
       OriginalObject = new DbCommandInput()
       {
         CommandType = CommandType,
@@ -211,8 +211,8 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
     _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "input",
-      ClassName = _dbProviderType?.name ?? string.Empty,
-      Namespace = _dbProviderType?.nameSpace,
+      ClassName = _dbProviderType.name ?? string.Empty,
+      Namespace = _dbProviderType.nameSpace,
       OriginalObject = new DbCommandInput()
       {
         CommandType = CommandType,
@@ -242,8 +242,8 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
       _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
       {
         ArgumentName = "input",
-        ClassName = _dbProviderType?.name,
-        Namespace = _dbProviderType?.nameSpace,
+        ClassName = _dbProviderType.name,
+        Namespace = _dbProviderType.nameSpace,
         OriginalObject = new DbCommandInput()
         {
           CommandType = CommandType,
@@ -251,7 +251,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
           Parameters = pars.ToList()
         }
       });
-      object result = _dbCommand.ExecuteScalar();
+      object? result = _dbCommand.ExecuteScalar();
       var resultType = result?.GetType() ?? typeof(object);
       _traceStore.AddOutputAsync(tarceInfo, new ArgumentObjectInfo()
       {
@@ -297,8 +297,8 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
     _traceStore.AddInputAsync(tarceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "input",
-      ClassName = _dbProviderType?.name,
-      Namespace = _dbProviderType?.nameSpace,
+      ClassName = _dbProviderType.name,
+      Namespace = _dbProviderType.nameSpace,
       OriginalObject = new DbCommandInput()
       {
         CommandType = CommandType,

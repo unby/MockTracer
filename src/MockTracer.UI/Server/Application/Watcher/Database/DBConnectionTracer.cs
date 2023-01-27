@@ -10,7 +10,7 @@ public class DBConnectionTracer : DbConnection, IDbConnection
 {
   private readonly DbConnection _dbConnection;
   private readonly ScopeWatcher _traceStore;
-  private readonly Type? _dbProviderType;
+  private readonly Type _dbProviderType;
 
   /// <summary>
   /// DBConnectionTracer
@@ -27,7 +27,11 @@ public class DBConnectionTracer : DbConnection, IDbConnection
   }
 
   /// <inheritdoc/>
-  public override string ConnectionString => _dbConnection.ConnectionString;
+#pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
+  public override string ConnectionString { get => _dbConnection.ConnectionString; set => _dbConnection.ConnectionString = value; }
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
+#pragma warning restore CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
 
   /// <inheritdoc/>
   public new int ConnectionTimeout => _dbConnection.ConnectionTimeout;
@@ -75,7 +79,7 @@ public class DBConnectionTracer : DbConnection, IDbConnection
   }
 
   /// <inheritdoc/>
-  public void Dispose()
+  public new void Dispose()
   {
     _dbConnection.Dispose();
   }

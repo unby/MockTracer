@@ -81,8 +81,9 @@ internal static class FragmentExtention
         return genericType?.MakeGenericType(split.Select(s => FindType(s) ?? throw new NullReferenceException($"{s} is not found")).ToArray());
       }
 
-
       Type? type = Type.GetType(typeName);
+
+      if (type != null)
       {
         return type;
       }
