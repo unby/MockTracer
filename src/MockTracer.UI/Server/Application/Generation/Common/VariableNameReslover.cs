@@ -1,9 +1,17 @@
 ﻿namespace MockTracer.UI.Server.Application.Generation.Common;
 
+/// <summary>
+/// store with 
+/// </summary>
 public class VariableNameReslover
 {
-  Dictionary<string, List<string>> VariableValues = new Dictionary<string, List<string>>();
+  private Dictionary<string, List<string>> VariableValues = new Dictionary<string, List<string>>();
 
+  /// <summary>
+  /// Resolve unique member name
+  /// </summary>
+  /// <param name="name">desired name</param>
+  /// <returns>free name</returns>
   public string CheckName(string name)
   {
     if (VariableValues.TryGetValue(name, out var values))

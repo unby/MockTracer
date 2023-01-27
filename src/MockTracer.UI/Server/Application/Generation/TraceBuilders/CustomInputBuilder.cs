@@ -1,25 +1,29 @@
-﻿using System.Globalization;
+﻿using Microsoft.Extensions.Hosting;
 using MockTracer.UI.Server.Application.Generation.Common;
 using MockTracer.UI.Shared.Entity;
 
 namespace MockTracer.UI.Server.Application.Generation.TraceBuilders;
 
 /// <summary>
-/// Mediatr input point
+/// Custom interface input point
 /// </summary>
-public class MediatrInputBuilder : InputPointBuilderBase
+public class CustomInputBuilder : InputPointBuilderBase
 {
   /// <summary>
-  /// MediatrInputBuilder
+  /// CustomInputBuilder
   /// </summary>
   /// <param name="nameReslover"><see cref="VariableNameReslover"/></param>
-  public MediatrInputBuilder(VariableNameReslover nameReslover) : base(nameReslover)
+  public CustomInputBuilder(VariableNameReslover nameReslover) : base(nameReslover)
   {
   }
 
   /// <inheritdoc/>
   public override IEnumerable<LineFragment> BuildFragments(StackRow row)
   {
+    /*
+    var dataSource = host.GetInstance<IDataSource>();
+    var result = dataSource.MultupleQueryAsync(1, "12");
+    */
     var result = new List<LineFragment>();
     try
     {

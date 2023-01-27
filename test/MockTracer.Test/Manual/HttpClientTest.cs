@@ -2,6 +2,7 @@
 using System.Text;
 using JustEat.HttpClientInterception;
 using MediatR;
+using MockTracer.Test.Api.Application.Features.Data;
 using MockTracer.Test.Api.Application.Features.Topic;
 using MockTracer.Test.Api.Controllers;
 using MockTracer.Test.Api.Domain;
@@ -54,7 +55,7 @@ public class HttpClientTest : SampleTestBase
   }
 
   [Fact]
-  public async Task ControllerRegisteredAsync()
+  public void ControllerRegistered()
   {
     // act
     var controller = NewServer().GetInstance<TopicController>();
@@ -119,20 +120,18 @@ public class HttpClientTest : SampleTestBase
     // prepare
     var httpClient = new HttpRequestInterceptionBuilder().Requests().For(f => f.Method == HttpMethod.Get && f.RequestUri.AbsolutePath.EndsWith("/fact"))
               .Responds().WithMediaType("application/json")
-.WithContent(() => new CatFact
-{
-  Fact = "Cats take between 20-40 breaths per minute.",
-  Length = 43
-}.ToUtf8Bytes())
+              .WithContent(() => new CatFact
+              {
+                Fact = "Cats take between 20-40 breaths per minute.",
+                Length = 43
+              }.ToUtf8Bytes())
               .WithStatus(HttpStatusCode.OK)
               .RegisterWith(HttpClientInterceptor);
 
     // action services => { }
     var host = NewServer();
     var mediator = host.GetInstance<IMediator>();
-    var result = await mediator.Send(new CatFactQuery
-    {
-    });
+    var result = await mediator.Send(new CatFactQuery());
 
     // todo: assert
     Assert.Equal(new CatFact
@@ -140,5 +139,17 @@ public class HttpClientTest : SampleTestBase
       Fact = "Cats take between 20-40 breaths per minute.",
       Length = 43
     }, result);
+  }
+
+  [Fact]
+  public async Task DefaultMethodName5Async()
+  {
+    // action services => { }
+    var host = NewServer();
+    var dataSource = host.GetInstance<IDataSource>();
+    var result = await dataSource.MultupleQueryAsync(1, "12");
+
+    // todo: assert
+    Assert.NotNull(result);
   }
 }

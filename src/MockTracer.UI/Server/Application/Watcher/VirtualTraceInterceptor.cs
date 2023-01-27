@@ -1,4 +1,5 @@
-﻿using Castle.DynamicProxy;
+﻿using System.Reflection;
+using Castle.DynamicProxy;
 using MockTracer.UI.Server.Application.Common;
 
 namespace MockTracer.UI.Server.Application.Watcher;
@@ -18,20 +19,26 @@ public class VirtualTraceInterceptor : IInterceptor,  ITracer
   {
     _scopeWatcher = scopeWatcher;
   }
+
   /// <inheritdoc/>
-  public TraceInfo CreateInfo(string title)
+  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null)
   {
     return new TraceInfo()
     {
       TraceId = VariableMaster.Next(),
       Title = title,
       TracerType = Constants.Custom,
+      CalledType = type,
+      CalledMethod = methodInfo,
     };
   }
+
   /// <inheritdoc/>
   public void Intercept(IInvocation invocation)
   {
-    var info = CreateInfo(invocation.Proxy.GetType().Name + invocation.Method.Name);
+    var type = invocation.InvocationTarget.GetType();
+    var genericArgs = invocation.Method.GetGenericArguments();
+    var info = CreateInfo(type.Namespace + "=>" + type.Name + "=>" + invocation.Method.Name);
     try
     {
       var method = invocation.Method.GetParameters();

@@ -44,9 +44,8 @@ public abstract class TemplateBuilderBase : ITemplateBuilder
   /// </summary>
   /// <param name="params"></param>
   /// <param name="settings"></param>
-  /// <param name="tracerBuilder"></param>
-  /// <param name="mockerBuilders"></param>
-  /// <returns></returns>
+  /// <param name="context"></param>
+  /// <returns>string with test class</returns>
   public virtual string Build(Shared.Generation.GenerationAttributes @params, ClassGenerationSetting settings, GenerationContext context)
   {
     StringBuilder builder = NameReplace(settings);

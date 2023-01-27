@@ -164,7 +164,11 @@ public static class MockTracerExtention
   public static IServiceCollection SetTestDBConnectionProvider<T>(this IServiceCollection services, MockDbConnection dbConnection, ServiceLifetime lifetime = ServiceLifetime.Scoped)
   {
     var type = GenerateDbProvider<T>();
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8603 // Possible null reference return.
     var desriptor = new ServiceDescriptor(typeof(T), (s) => (T)Activator.CreateInstance(type, dbConnection), lifetime);
+#pragma warning restore CS8603 // Possible null reference return.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
     services.Replace(desriptor);
     return services;
   }

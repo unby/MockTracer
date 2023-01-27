@@ -43,6 +43,7 @@ public static class RegisterExtentions
       s.AllowRoutes.Allows = new[] { "/api" };
     }
   };
+
   internal static bool IsRegister
   {
     get
@@ -75,11 +76,12 @@ public static class RegisterExtentions
   /// <summary>
   /// Registration services tool
   /// add variable --- "MOCKTRACER_ENABLE": "true" --- to launchSettings.json
-  /// use ignoring versioning for tool's api if needs --- services.AddApiVersioning(a => a.Conventions.Controller<DataController>().IsApiVersionNeutral()
-  /// use services.DecorateDbProvider<T>() for registration DBConnectionTracer
+  /// use ignoring versioning for tool's api if needs --- services.AddApiVersioning(a => a.Conventions.Controller`DataController`().IsApiVersionNeutral()
+  /// use services.DecorateDbProvider`T`() for registration DBConnectionTracer
   /// </summary>
   /// <param name="services"><see cref="IServiceCollection"/></param>
   /// <param name="replaceAction">customise function</param>
+  /// <param name="configureOptions">customise configuration</param>
   /// <returns><see cref="IServiceCollection"/></returns>
   public static IServiceCollection UseMockTracerUiService(this IServiceCollection services, Action<IServiceCollection>? replaceAction = null, Action<MockTracerOption>? configureOptions = null)
   {
@@ -302,8 +304,9 @@ public static class RegisterExtentions
   /// <summary>
   /// Configures the application to serve Blazor WebAssembly framework files from the path <paramref name="pathPrefix"/>. This path must correspond to a referenced Blazor WebAssembly application project.
   /// </summary>
-  /// <param name="builder">The <see cref="IApplicationBuilder"/>.</param>
+  /// <param name="builder">The <see cref="IApplicationBuilder"/></param>
   /// <param name="pathPrefix">The <see cref="PathString"/> that indicates the prefix for the Blazor WebAssembly application.</param>
+  /// <param name="options">The <see cref="StaticFileOptions"/></param>
   /// <returns>The <see cref="IApplicationBuilder"/></returns>
   private static IApplicationBuilder UseEmbededLocalBlazorApp(this IApplicationBuilder builder, PathString pathPrefix, StaticFileOptions options)
   {

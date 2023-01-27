@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using MockTracer.UI.Server.Application.Common;
@@ -11,17 +12,29 @@ namespace MockTracer.UI.Server.Application.Watcher.AspNetMiddleware;
 /// </summary>
 public class HttpClientTraceHandler : DelegatingHandler, ITracer
 {
-  private readonly ScopeWatcher _scopeStore;
+  private const string DefaultPath = "http://path/";
+  
+  private readonly ScopeWatcher? _scopeStore;
 
+  /// <summary>
+  /// HttpClientTraceHandler
+  /// </summary>
+  /// <param name="accessor"><see cref="IHttpContextAccessor"/></param>
   public HttpClientTraceHandler(IHttpContextAccessor accessor)
       : base()
   {
-    _scopeStore = accessor.HttpContext.RequestServices.GetService<ScopeWatcher>();
+    _scopeStore = accessor?.HttpContext?.RequestServices.GetRequiredService<ScopeWatcher>();
   }
 
+  /// <inheritdoc/>
   protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
   {
-    var traceInfo = CreateInfo(request.RequestUri.AbsolutePath);
+    if(_scopeStore == null)
+    {
+      return await base.SendAsync(request, cancellationToken);
+    }
+
+    var traceInfo = CreateInfo(request.RequestUri?.AbsolutePath ?? DefaultPath);
     _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "request",
@@ -30,8 +43,8 @@ public class HttpClientTraceHandler : DelegatingHandler, ITracer
       OriginalObject = request.Content != null ? await request.Content.ReadAsStringAsync() : null,
       AdvancedInfo = new TraceHttpRequest()
       {
-        FullPath = request.RequestUri.ToString(),
-        Path = request.RequestUri.AbsolutePath,
+        FullPath = request.RequestUri?.ToString() ?? DefaultPath,
+        Path = request.RequestUri?.AbsolutePath ?? string.Empty,
         ContentType = request.Content?.Headers?.ContentType?.MediaType?.ToString(),
         Method = request.Method.ToString()
       }
@@ -63,7 +76,7 @@ public class HttpClientTraceHandler : DelegatingHandler, ITracer
   }
 
   /// <inheritdoc/>
-  public TraceInfo CreateInfo(string title)
+  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null)
   {
     return new TraceInfo()
     {
@@ -85,7 +98,7 @@ public class HttpClientTraceHandler : DelegatingHandler, ITracer
     {
       var type = traceInfo.StackTrace.FirstOrDefault(w => w.DeclaringTypeNamespace !=null && w.DeclaringTypeNamespace.StartsWith("Refit.Implementation"));
       result = await response.Content.ReadAsStringAsync();
-      var objType = type.OutputTypeName.Replace("Task<", string.Empty).TrimEnd('>').FindType();
+      var objType = type?.OutputTypeName.Replace("Task<", string.Empty).TrimEnd('>').FindType();
 
       if (objType == null || string.IsNullOrEmpty(result))
       {

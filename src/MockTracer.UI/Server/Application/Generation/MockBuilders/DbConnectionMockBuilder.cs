@@ -36,7 +36,7 @@ public class DbConnectionMockBuilder : MockPointBuilderBase
 
       result.Add(BuildingConstans.Prepare.Line($"var {variable} = new MockDbConnection();"));
       var outputParametr = row.Output.AddInfo != null ? JsonSerializer.Deserialize<List<MockParameter>>(row.Output.AddInfo) : null;
-      var dataSet = row.Output.Name != "dataset" ? new List<DataSet>(0) : JsonSerializer.Deserialize<List<DataSet>>(row.Output.Json);
+      var dataSet = row.Output.Name != "dataset" ? new List<DataSet>(0) : JsonSerializer.Deserialize<List<DataSet>>(row.Output.Json) ?? new List<DataSet>(0);
       if (row.Input[0].ClassName != null)
       {
         result.Add(BuildingConstans.Configure.Line($"s.SetTestDBConnectionProvider<{row.Input[0].ClassName}>({variable})"));
@@ -83,7 +83,6 @@ public class DbConnectionMockBuilder : MockPointBuilderBase
         if (dataSet.Count == 1)
         {
           sb.Append(".ReturnsTable(");
-          var count = 1;
           var item = dataSet.First();
 
           sb.Append($"MockTable.WithColumns(");

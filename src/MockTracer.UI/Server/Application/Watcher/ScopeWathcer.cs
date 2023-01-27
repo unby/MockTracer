@@ -57,7 +57,7 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
       throw new ArgumentNullException(nameof(trace));
     }
 
-    var time = VariableMaster.CurrentTime();
+    var time = DateTime.Now;
     StackRow? stackRow = _stack.Any() ? _stack.Peek() : null;
 
     if (stackRow == null)

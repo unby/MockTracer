@@ -33,6 +33,6 @@ public class DbProvider2 : IDbProvider
 
   public IDbConnection GetDbConnection()
   {
-    return new DBConnectionTracer(_dbProvider.GetDbConnection(), _scopeWathcer);
+    return new DBConnectionTracer(_dbProvider.GetDbConnection(), _scopeWathcer, this.GetType());
   }
 }

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Reflection;
+using MediatR;
 using MockTracer.UI.Server.Application.Common;
 using MockTracer.UI.Server.Application.Generation;
 
@@ -53,13 +54,15 @@ public class MediatorRequestTrace<TRequest, TResponse>
   }
 
   /// <inheritdoc/>
-  public TraceInfo CreateInfo(string title)
+  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null)
   {
     return new TraceInfo()
     {
       TraceId = VariableMaster.Next(),
       Title = title,
-      TracerType = Constants.Mediatr
+      TracerType = Constants.Mediatr,
+      CalledMethod = methodInfo,
+      CalledType = type,
     };
   }
 }

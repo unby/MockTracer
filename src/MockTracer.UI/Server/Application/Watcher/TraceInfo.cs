@@ -1,4 +1,5 @@
-﻿using MockTracer.UI.Server.Application.Generation;
+﻿using System.Reflection;
+using MockTracer.UI.Server.Application.Generation;
 using MockTracer.UI.Shared.Entity;
 
 namespace MockTracer.UI.Server.Application.Watcher;
@@ -27,5 +28,15 @@ public class TraceInfo
   /// Title
   /// </summary>
   public string Title { get; init; }
+
+  /// <summary>
+  /// Called type
+  /// </summary>
+  public Type? CalledType { get; init; }
+
+  /// <summary>
+  /// Called method
+  /// </summary>
+  public MethodInfo? CalledMethod { get; init; }
 }
 

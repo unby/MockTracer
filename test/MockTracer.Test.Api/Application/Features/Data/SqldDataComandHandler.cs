@@ -57,11 +57,11 @@ public class SqldDataComandHandler :
   {
   }
 
-  public async Task<DataRecord> Handle(SingleRow request, CancellationToken cancellationToken)
+  public Task<DataRecord> Handle(SingleRow request, CancellationToken cancellationToken)
   {
     try
     {
-      return _service.SingleRow(500, "MultupleQueryAsync");
+      return Task.FromResult(_service.SingleRow(500, "MultupleQueryAsync"));
     }
     catch (Exception ex)
     {
@@ -74,16 +74,16 @@ public class SqldDataComandHandler :
   {
   }
 
-  public async Task<DateTime> Handle(SystemDate request, CancellationToken cancellationToken)
+  public Task<DateTime> Handle(SystemDate request, CancellationToken cancellationToken)
   {
     try
     {
-      return _service.SystemDate(500, "MultupleQueryAsync");
+      return Task.FromResult(_service.SystemDate(500, "MultupleQueryAsync"));
     }
     catch (Exception ex)
     {
       Console.WriteLine(ex);
-      return DateTime.Now;
+      return Task.FromResult(DateTime.Now);
     }
   }
 

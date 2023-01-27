@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
@@ -8,17 +9,24 @@ using MockTracer.UI.Server.Options;
 
 namespace MockTracer.UI.Server.Application.Watcher.AspNetMiddleware;
 
+/// <inheritdoc/>
 public class HttpContextTrace : ITracer
 {
   private readonly RequestDelegate _next;
   private readonly HttpRouteOptions _options;
 
+  /// <summary>
+  /// HttpContextTrace
+  /// </summary>
+  /// <param name="next"><see cref="RequestDelegate"/></param>
+  /// <param name="options"><see cref="MockTracerOption"/></param>
   public HttpContextTrace(RequestDelegate next, IOptions<MockTracerOption> options)
   {
     _next = next;
     _options = options.Value.AllowRoutes;
   }
 
+  /// <inheritdoc/>
   public async Task Invoke(HttpContext context, ScopeWatcher _scopeStore)
   {
     if (_options.IsWatch(context.Request.Path))
@@ -69,13 +77,16 @@ public class HttpContextTrace : ITracer
     }
   }
 
-  public TraceInfo CreateInfo(string title)
+  /// <inheritdoc/>
+  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null)
   {
     return new TraceInfo()
     {
       TraceId = VariableMaster.Next(),
       Title = title,
-      TracerType = Constants.HttpContext
+      TracerType = Constants.HttpContext,
+      CalledType = type,
+      CalledMethod = methodInfo,
     };
   }
 

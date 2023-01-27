@@ -13,24 +13,24 @@ public class DBConnectionTracer : DbConnection, IDbConnection
   private readonly Type? _dbProviderType;
 
   /// <summary>
-  /// 
+  /// DBConnectionTracer
   /// </summary>
   /// <param name="dbConnection">manual connection</param>
   /// <param name="traceStore">traceStore from DI</param>
   /// <param name="dbProviderType">don't set this arguments</param>
   /// <exception cref="ArgumentException"></exception>
-  public DBConnectionTracer(IDbConnection dbConnection, ScopeWatcher traceStore, Type? dbProviderType = null)
+  public DBConnectionTracer(IDbConnection dbConnection, ScopeWatcher traceStore, Type dbProviderType)
   {
-    _dbConnection = dbConnection as DbConnection ?? throw new ArgumentException(nameof(dbConnection)); ;
+    _dbConnection = dbConnection as DbConnection ?? throw new ArgumentException(nameof(dbConnection));
     _traceStore = traceStore;
     _dbProviderType = dbProviderType;
   }
 
   /// <inheritdoc/>
-  public override string ConnectionString { get => _dbConnection.ConnectionString; set => _dbConnection.ConnectionString = value; }
+  public override string ConnectionString => _dbConnection.ConnectionString;
 
   /// <inheritdoc/>
-  public int ConnectionTimeout => _dbConnection.ConnectionTimeout;
+  public new int ConnectionTimeout => _dbConnection.ConnectionTimeout;
 
   /// <inheritdoc/>
   public override string Database => _dbConnection.Database;
@@ -45,13 +45,13 @@ public class DBConnectionTracer : DbConnection, IDbConnection
   public override string ServerVersion => _dbConnection.ServerVersion;
 
   /// <inheritdoc/>
-  public IDbTransaction BeginTransaction()
+  public new IDbTransaction BeginTransaction()
   {
     return _dbConnection.BeginTransaction();
   }
 
   /// <inheritdoc/>
-  public IDbTransaction BeginTransaction(IsolationLevel il)
+  public new IDbTransaction BeginTransaction(IsolationLevel il)
   {
     return _dbConnection.BeginTransaction(il);
   }
@@ -69,7 +69,7 @@ public class DBConnectionTracer : DbConnection, IDbConnection
   }
 
   /// <inheritdoc/>
-  public IDbCommand CreateCommand()
+  public new IDbCommand CreateCommand()
   {
     return new DbCommandMocker(_dbConnection.CreateCommand(), _traceStore, _dbProviderType);
   }
