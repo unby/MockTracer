@@ -46,7 +46,7 @@ public class ActionFilterTracer : IAsyncActionFilter, ITracer
       var request = controller.HttpContext.Request;
       var n = context.ActionArguments.Keys;
       var obj = context.ActionArguments.Select(s => s.Value).FirstOrDefault();
-      var httpRequest = new TraceHttpRequest() { Method = request.Method, ContentType = request.ContentType, FullPath = $"{request.Path}{request.QueryString}".Trim('?'), Path = request.Path };
+      var httpRequest = new TraceHttpRequest(request.Path, $"{request.Path}{request.QueryString}".Trim('?'), request.ContentType, request.Method);
 
       var traceInfo = CreateInfo(httpRequest.FullPath);
       _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()

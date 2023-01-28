@@ -11,9 +11,7 @@ namespace MockTracer.UI.Server.Application.Watcher.AspNetMiddleware;
 /// HttpClient tracer
 /// </summary>
 public class HttpClientTraceHandler : DelegatingHandler, ITracer
-{
-  private const string DefaultPath = "http://path/";
-  
+{ 
   private readonly ScopeWatcher? _scopeStore;
 
   /// <summary>
@@ -34,20 +32,18 @@ public class HttpClientTraceHandler : DelegatingHandler, ITracer
       return await base.SendAsync(request, cancellationToken);
     }
 
-    var traceInfo = CreateInfo(request.RequestUri?.AbsolutePath ?? DefaultPath);
+    var traceInfo = CreateInfo(request.RequestUri?.AbsolutePath ?? TraceHttpRequest.DefaultPath);
     _scopeStore.AddInputAsync(traceInfo, new ArgumentObjectInfo()
     {
       ArgumentName = "request",
       ClassName = request.GetType().GetRealTypeName(),
       Namespace = request.GetType().Namespace,
       OriginalObject = request.Content != null ? await request.Content.ReadAsStringAsync() : null,
-      AdvancedInfo = new TraceHttpRequest()
-      {
-        FullPath = request.RequestUri?.ToString() ?? DefaultPath,
-        Path = request.RequestUri?.AbsolutePath ?? string.Empty,
-        ContentType = request.Content?.Headers?.ContentType?.MediaType?.ToString(),
-        Method = request.Method.ToString()
-      }
+      AdvancedInfo = new TraceHttpRequest(
+        request.RequestUri?.AbsolutePath,
+        request.RequestUri?.ToString(),
+        request.Content?.Headers?.ContentType?.MediaType?.ToString(),
+        request.Method.ToString())
     });
     try
     {

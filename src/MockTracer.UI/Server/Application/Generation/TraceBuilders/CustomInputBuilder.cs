@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System.Text;
+using Microsoft.Extensions.Hosting;
 using MockTracer.UI.Server.Application.Generation.Common;
 using MockTracer.UI.Shared.Entity;
 
@@ -20,30 +21,39 @@ public class CustomInputBuilder : InputPointBuilderBase
   /// <inheritdoc/>
   public override IEnumerable<LineFragment> BuildFragments(StackRow row)
   {
-    /*
-    var dataSource = host.GetInstance<IDataSource>();
-    var result = dataSource.MultupleQueryAsync(1, "12");
-    */
     var result = new List<LineFragment>();
     try
     {
       var input = row.Input?.FirstOrDefault();
-
-      result.Add(BuildingConstans.Action.Line(@$"var mediator = host.GetInstance<IMediator>();"));
-
-
-      if (row.Output.ClassName.EndsWith("Task"))
+      if (!string.IsNullOrEmpty(row.DeclaringTypeNamespace))
+      { result.Add(BuildingConstans.Using.Line(row.DeclaringTypeNamespace)); }
+      var instanceVar = NameReslover.CheckName(row.DeclaringTypeName.TrimStart('I'));
+      result.Add(BuildingConstans.Action.Line(@$"var {instanceVar} = host.GetInstance<{row.DeclaringTypeName}>();"));
+      var resultVar = NameReslover.CheckName("result");
+      var args = new StringBuilder();
+      bool appendComma = false;
+      foreach (var item in row.Input)
       {
-        result.Add(BuildingConstans.Action.Line(@$"await mediator.Send({input.SharpCode});"));
+        if (appendComma) args.Append(',');
+        args.Append(item.SharpCode);
+        appendComma = true;
+      }
+
+      if(row.OutputTypeName?.Equals("Task") ?? false)
+      {
+        result.Add(BuildingConstans.Action.Line(@$"await {instanceVar}.{row.MethodName}({args});"));
+      }
+      if (!string.IsNullOrEmpty(row.OutputTypeName))
+      {
+        result.Add(BuildingConstans.Action.Line(@$"var {resultVar} = {(row.OutputTypeName.StartsWith("Task<") ? "await" : string.Empty)} {instanceVar}.{row.MethodName}({args});"));
+        result.Add(BuildingConstans.Assert.Line(@$"/*
+Assert.Equal({row.Output.SharpCode}, {resultVar});
+*/"));
       }
       else
       {
-        result.Add(BuildingConstans.Action.Line(@$"var result = await mediator.Send({input.SharpCode});"));
-        result.Add(BuildingConstans.Assert.Line(@$"/*
-Assert.Equal({row.Output.SharpCode}, result);
-*/"));
+        result.Add(BuildingConstans.Action.Line(@$"{instanceVar}.{row.MethodName}({args});"));
       }
-
     }
     catch (Exception ex)
     {

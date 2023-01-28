@@ -18,7 +18,7 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
 
   private int _counter = 1;
 
-  private StackScope _scope;
+  private StackScope? _scope;
 
   private readonly DumpOptions _sharpOptions = new DumpOptions()
   {
@@ -36,7 +36,7 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
   internal static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions() { WriteIndented = true, PropertyNameCaseInsensitive = true };
 
   /// <summary>
-  /// 
+  /// ScopeWatcher
   /// </summary>
   /// <param name="serviceProvider"><see cref="IServiceProvider"/></param>
   public ScopeWatcher(IServiceProvider serviceProvider)
@@ -80,12 +80,19 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
         StackTrace = JsonSerializer.Serialize(trace.StackTrace, JsonOptions),
         TracerType = trace.TracerType,
         IsEntry = true,
-        DeepLevel = 1
+        DeepLevel = 1,
+
+        DeclaringTypeNamespace = trace.CalledType?.Namespace,
+        DeclaringTypeName = trace.CalledType?.GetRealTypeName(),
+        MethodName = trace.CalledMethod?.GetRealMethodName(),
+        OutputTypeName = trace.CalledMethod?.DeclaringType?.GetRealTypeName(),
+        OutputTypeNamespace = trace.CalledMethod?.DeclaringType?.Namespace,
       };
       _context.StackScopes.Add(_scope);
     }
     else
     {
+
       stackRow = new StackRow()
       {
         Id = trace.TraceId,
@@ -93,12 +100,21 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
         Title = trace.Title,
         Order = _counter++,
         Time = time,
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
         ScopeId = _scope.Id,
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         StackTrace = JsonSerializer.Serialize(trace.StackTrace, JsonOptions),
         TracerType = trace.TracerType,
         IsEntry = false,
-        DeepLevel = 1 + stackRow.DeepLevel
+        DeepLevel = 1 + stackRow.DeepLevel,
+
+        DeclaringTypeNamespace = trace.CalledType?.Namespace,
+        DeclaringTypeName = trace.CalledType?.GetRealTypeName(),
+        MethodName = trace.CalledMethod?.GetRealMethodName(),
+        OutputTypeName = trace.CalledMethod?.DeclaringType?.GetRealTypeName(),
+        OutputTypeNamespace = trace.CalledMethod?.DeclaringType?.Namespace,
       };
+
     }
 
     if (serviceData != null && serviceData.Length > 0)

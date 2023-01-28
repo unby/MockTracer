@@ -7,6 +7,7 @@ using MockTracer.UI.Shared.Entity;
 
 namespace MockTracer.UI.Server.Application.Generation.MockBuilders;
 
+/// <inheritdoc/>
 public class HttpClientMockBuilder : MockPointBuilderBase
 {
   public HttpClientMockBuilder(VariableNameReslover nameReslover)

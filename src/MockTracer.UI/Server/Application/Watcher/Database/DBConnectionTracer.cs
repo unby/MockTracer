@@ -21,7 +21,7 @@ public class DBConnectionTracer : DbConnection, IDbConnection
   /// <exception cref="ArgumentException"></exception>
   public DBConnectionTracer(IDbConnection dbConnection, ScopeWatcher traceStore, Type dbProviderType)
   {
-    _dbConnection = dbConnection as DbConnection ?? throw new ArgumentException(nameof(dbConnection));
+    _dbConnection = dbConnection as DbConnection ?? throw new ArgumentException(nameof(dbConnection) + " must be like DbConnection");
     _traceStore = traceStore;
     _dbProviderType = dbProviderType;
   }

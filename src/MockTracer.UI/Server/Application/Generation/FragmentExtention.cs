@@ -182,9 +182,43 @@ internal static class FragmentExtention
     }
     catch (Exception ex)
     {
-      Console.WriteLine(ex);
-      var x = ex.ToString();
-      return type.FullName + "**FAILEd_PARSE**";
+      return type.FullName + "**FAILED_PARSE** " + ex.Message;
+    }
+  }
+
+  /// <summary>
+  /// Resolve programmer's type name
+  /// </summary>
+  /// <param name="method">source MethodInfo</param>
+  /// <returns>type name</returns>
+  public static string GetRealMethodName(this MethodInfo method)
+  {
+    try
+    {
+      var generics = method.GetGenericArguments();
+      var name = method.Name;
+
+      if (generics == null || !generics.Any())
+      {
+        return name;
+      }
+
+      StringBuilder sb = new StringBuilder();
+   
+      sb.Append('<');
+      bool appendComma = false;
+      foreach (Type arg in generics)
+      {
+        if (appendComma) sb.Append(',');
+        sb.Append(GetRealTypeName(arg, true));
+        appendComma = true;
+      }
+      sb.Append('>');
+      return sb.ToString();
+    }
+    catch (Exception ex)
+    {
+      return method.Name + "**FAILED_PARSE** " + ex.Message;
     }
   }
 

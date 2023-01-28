@@ -104,7 +104,7 @@ public static class RegisterExtentions
       services.AddControllers(o => o.Filters.Add<ActionFilterTracer>()).AddJsonOptions(options => { });
       services.RegisterGenerator();
       services.AddScoped<HttpClientTraceHandler>();
-      services.AddScoped<VirtualTraceInterceptor>();
+      // services.AddScoped<VirtualTraceInterceptor>();
       services.PostConfigureAll<HttpClientFactoryOptions>(options =>
       {
         options.HttpMessageHandlerBuilderActions.Add(builder =>
@@ -188,7 +188,9 @@ public static class RegisterExtentions
     services.Decorate(typeof(T), t);
     return services;
   }
+
   private static readonly ProxyGenerator _generator = new ProxyGenerator();
+
   /// <summary>
   /// Create proxy trace type <see cref="DBConnectionTracer"/>
   /// </summary>
@@ -200,8 +202,10 @@ public static class RegisterExtentions
     var type = typeof(T);
     services.Decorate(type, (t, s) =>
     {
-      var traceInterceptor = s.GetRequiredService<VirtualTraceInterceptor>();
-      var n= _generator.CreateInterfaceProxyWithTargetInterface(type,t , traceInterceptor);
+      var watcher = s.GetRequiredService<ScopeWatcher>();
+      var traceInterceptor =new VirtualTraceInterceptor(watcher, type);
+      
+      var n = _generator.CreateInterfaceProxyWithTargetInterface(type, t, traceInterceptor);
       return n;
     });
 

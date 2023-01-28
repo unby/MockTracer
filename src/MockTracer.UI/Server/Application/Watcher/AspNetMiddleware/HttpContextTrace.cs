@@ -105,7 +105,7 @@ public class HttpContextTrace : ITracer
     }
     request.Body.Seek(0, SeekOrigin.Begin);
     string path = $"{request.Path}{(!string.IsNullOrEmpty(request.QueryString.ToString()) ? "?" + request.QueryString : string.Empty)}";
-    return (new TraceHttpRequest() { Method = request.Method, ContentType = request.ContentType, FullPath = path, Path = request.Path }, bodyAsText);
+    return (new TraceHttpRequest(request.Path, path, request.ContentType, request.Method), bodyAsText);
   }
 
   private async Task<(TraceHttpReponse response, string? body)> GetResponseAsTextAsync(HttpResponse response)

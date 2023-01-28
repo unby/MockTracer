@@ -1,7 +1,7 @@
 ﻿namespace MockTracer.UI.Server.Application.Generation.Common;
 
 /// <summary>
-/// store with 
+/// store with code's members
 /// </summary>
 public class VariableNameReslover
 {
@@ -14,6 +14,9 @@ public class VariableNameReslover
   /// <returns>free name</returns>
   public string CheckName(string name)
   {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+    name = FragmentExtention.FirstCharToLowerCase(name ?? throw new ArgumentNullException("name is null"));
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
     if (VariableValues.TryGetValue(name, out var values))
     {
       var last = values.Last();
