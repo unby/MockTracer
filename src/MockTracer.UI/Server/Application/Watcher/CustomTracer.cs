@@ -1,4 +1,5 @@
 ﻿using MockTracer.UI.Server.Application.Common;
+using MockTracer.UI.Server.Application.Generation;
 
 namespace MockTracer.UI.Server.Application.Watcher;
 
@@ -16,11 +17,23 @@ public static class CustomTracer
 
   public static ArgumentObjectInfo ResolveArgument(object result, Type type, string name)
   {
+    var original = result;
+    if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task))
+    {
+      return null;
+    }
+
+    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+    {
+      original = type.GetProperty("Result").GetValue(result);
+      type = type.GenericTypeArguments[0];
+    }
+
     return new ArgumentObjectInfo()
     {
       ArgumentName = name,
-      OriginalObject = result,
-      ClassName = type.Name,
+      OriginalObject = original,
+      ClassName = type.GetRealTypeName(),
       Namespace = type.Namespace,
     };
   }

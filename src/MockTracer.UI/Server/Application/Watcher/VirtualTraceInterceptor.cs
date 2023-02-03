@@ -44,7 +44,7 @@ public class VirtualTraceInterceptor : IInterceptor, ITracer
     try
     {
       var method = invocation.Method.GetParameters();
-      var inputs = invocation.Arguments.Select((s, i) => CustomTracer.ResolveArgument(s, method[i].ParameterType, method[i].Name ?? $"inArg{i}")).ToArray();
+      var inputs = invocation.Arguments.Select((s, i) => CustomTracer.ResolveArgument(s, method[i].ParameterType, method[i].Name ?? $"inArg{i}")).Where(w => w != null).ToArray();
       _scopeWatcher.AddInputAsync(info, inputs);
       invocation.Proceed();
       _scopeWatcher.AddOutputAsync(

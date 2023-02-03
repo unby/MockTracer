@@ -52,8 +52,7 @@ public class BuilderResolver : IBuilderResolver
       case Constants.DbConnection:
         return _service.GetRequiredService<DbConnectionMockBuilder>();
       case Constants.Custom:
-        return _service.GetRequiredService<DbConnectionMockBuilder>();
-      case Constants.MvcActionFilter:
+        return _service.GetRequiredService<CustomMockBuilder>();
       default:
         throw new NotImplementedException(tracerCode);
     }

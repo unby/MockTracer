@@ -14,16 +14,23 @@ public abstract class BuilderBase
 
   protected string ResolveName(TracedObject obj, List<LineFragment> result)
   {
-    if (CountLines(obj.SharpCode) > 12)
+    try
     {
-      var variableName = NameReslover.CheckName(obj.Name);
-      var className = result.ResolveClassName(obj);
+      if (CountLines(obj.SharpCode) > 12)
+      {
+        var variableName = NameReslover.CheckName(obj.Name);
+        var className = result.ResolveClassName(obj);
 
-      result.Add(BuildingConstans.BigVariable.Line($"  private {className} {variableName} = {obj.SharpCode};"));
-      return variableName;
+        result.Add(BuildingConstans.BigVariable.Line($"  private {className} {variableName} = {obj.SharpCode};"));
+        return variableName;
+      }
+
+      return obj.SharpCode;
     }
-
-    return obj.SharpCode;
+    catch
+    {
+      return "null";
+    }
   }
 
   protected string ResolveName(string str, List<LineFragment> result, string variableName)
