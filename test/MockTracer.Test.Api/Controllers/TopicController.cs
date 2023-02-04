@@ -7,7 +7,7 @@ namespace MockTracer.Test.Api.Controllers;
 
 [ApiController]
 [Route("api/topic/v10")]
-public class TopicController : Controller
+public class TopicController : ControllerBase
 {
   private readonly IMediator _mediator;
 

@@ -8,6 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -90,7 +91,7 @@ public static class RegisterExtentions
       services.AddMvc(opts =>
       {
         var prefixConvention = new ApiPrefixConvention(Prefix, (c) => c.ControllerType.Namespace.StartsWith("MockTracer.UI.Server"));
-        opts.Conventions.Insert(0, prefixConvention);
+        opts.Conventions.Add(prefixConvention);
       });
       services.AddTransient(typeof(IPipelineBehavior<,>), typeof(MediatorRequestTrace<,>));
       services.AddDbContext<MockTracerDbContext>(options =>
@@ -104,7 +105,7 @@ public static class RegisterExtentions
       services.AddControllers(o => o.Filters.Add<ActionFilterTracer>()).AddJsonOptions(options => { });
       services.RegisterGenerator();
       services.AddScoped<HttpClientTraceHandler>();
-      // services.AddScoped<VirtualTraceInterceptor>();
+
       services.PostConfigureAll<HttpClientFactoryOptions>(options =>
       {
         options.HttpMessageHandlerBuilderActions.Add(builder =>
@@ -150,7 +151,7 @@ public static class RegisterExtentions
         });
       });
 #else
-           app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/mocktracer"), first =>
+      app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/mocktracer"), first =>
       {
         var options = CreateStaticFilesOptions(new ResourceProvider());
         first.UseEmbededLocalBlazorApp("/mocktracer", options);
@@ -203,8 +204,8 @@ public static class RegisterExtentions
     services.Decorate(type, (t, s) =>
     {
       var watcher = s.GetRequiredService<ScopeWatcher>();
-      var traceInterceptor =new VirtualTraceInterceptor(watcher, type);
-      
+      var traceInterceptor = new VirtualTraceInterceptor(watcher, type);
+
       var n = _generator.CreateInterfaceProxyWithTargetInterface(type, t, traceInterceptor);
       return n;
     });
@@ -366,7 +367,7 @@ public static class RegisterExtentions
 
     if (!isApiRequest)
     {
-      await context.Response.SendFileAsync(MemoryFileInfo.Index); // This is a request for a web page so just do the normal out-of-the-box behaviour.
+      await context.Response.SendFileAsync(AssemblyResourceFileInfo.Index); // This is a request for a web page so just do the normal out-of-the-box behaviour.
     }
     else
     {

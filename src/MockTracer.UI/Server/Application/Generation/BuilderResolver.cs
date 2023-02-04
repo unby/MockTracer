@@ -44,7 +44,8 @@ public class BuilderResolver : IBuilderResolver
     switch (tracerCode)
     {
       case Constants.HttpContext:
-        return _service.GetRequiredService<HttpContextMockBuilder>();
+      case Constants.MvcActionFilter:
+        return _service.GetRequiredService<FakeMockBuilder>();
       case Constants.Mediatr:
         return _service.GetRequiredService<MediatorMockBuilder>();
       case Constants.HttpClient:

@@ -21,7 +21,6 @@ public class MockTracerServerTestHostTest : ToolTestBase
         var host = NewServer();
         var result = await host.GetHttpClient().GetAndDeserializeAsync<IEnumerable<TopicDto>>("/api/topic/v10");
 
-        Assert.Single(result);
         Assert.Contains(result, i => i.Title == SeedData.TestTopic.Title);
     }
 

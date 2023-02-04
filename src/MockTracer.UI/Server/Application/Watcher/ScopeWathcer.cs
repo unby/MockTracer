@@ -282,7 +282,6 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
   {
     if (!_disposedValue)
     {
-      Console.WriteLine("dispose");
       if (disposing)
       {
         if (_scope != null)

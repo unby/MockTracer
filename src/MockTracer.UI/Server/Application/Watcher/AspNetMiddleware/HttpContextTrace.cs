@@ -29,7 +29,7 @@ public class HttpContextTrace : ITracer
   /// <inheritdoc/>
   public async Task Invoke(HttpContext context, ScopeWatcher _scopeStore)
   {
-    if (_options.IsWatch(context.Request.Path))
+    if (_options.IsHTTPWatch(context.Request.Path))
     {
       var request = await GetRequestAsync(context.Request);
       var traceInfo = CreateInfo(request.req.FullPath);

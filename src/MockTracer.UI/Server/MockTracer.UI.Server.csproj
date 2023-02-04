@@ -52,8 +52,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
 
+  
   <ItemGroup Label="wwwroot">
-    <EmbeddedResource Include="..\Client\bin\$(Configuration)\$(TargetFramework)\wwwroot\_framework\*" Label="wwwroot" CopyToOutputDirectory="Never">
+    <EmbeddedResource Include="..\Client\bin\$(Configuration)\$(TargetFramework)\wwwroot\_framework\*" Exclude="..\Client\bin\$(Configuration)\$(TargetFramework)\wwwroot\_framework\*.gz"  Label="wwwroot" CopyToOutputDirectory="Never">
       <Link>_framework---%(Filename)%(Extension)</Link>
       <Visible>false</Visible>
     </EmbeddedResource>

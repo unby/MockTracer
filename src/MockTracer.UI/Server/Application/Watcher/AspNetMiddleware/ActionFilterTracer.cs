@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using MockTracer.UI.Server.Application.Common;
 using MockTracer.UI.Server.Application.Generation;
+using MockTracer.UI.Server.Controllers;
 using MockTracer.UI.Server.Options;
 
 namespace MockTracer.UI.Server.Application.Watcher.AspNetMiddleware;
@@ -41,7 +42,9 @@ public class ActionFilterTracer : IAsyncActionFilter, ITracer
   /// <inheritdoc/>
   public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
   {
-    if (context.Controller is ControllerBase controller && _options.AllowRoutes.IsWatch(controller.HttpContext.Request.Path))
+    if (context.Controller is ControllerBase controller
+        && controller is not DataController
+        && _options.AllowRoutes.IsWatch(controller.HttpContext.Request.Path))
     {
       var request = controller.HttpContext.Request;
       var n = context.ActionArguments.Keys;

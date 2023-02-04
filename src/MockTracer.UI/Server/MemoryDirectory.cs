@@ -18,7 +18,7 @@ public class MemoryDirectory : IDirectoryContents
 
   public IEnumerator<IFileInfo> GetEnumerator()
   {
-    foreach (var item in _resources.Select(s => new MemoryFileInfo(s.resourceName, s.path)))
+    foreach (var item in _resources.Select(s => new AssemblyResourceFileInfo(s.resourceName, s.path)))
     {
       yield return item;
     }
@@ -26,7 +26,7 @@ public class MemoryDirectory : IDirectoryContents
 
   IEnumerator IEnumerable.GetEnumerator()
   {
-    foreach (var item in _resources.Select(s => new MemoryFileInfo(s.resourceName, s.path)))
+    foreach (var item in _resources.Select(s => new AssemblyResourceFileInfo(s.resourceName, s.path)))
     {
       yield return item;
     }
