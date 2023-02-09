@@ -6,38 +6,55 @@ using MockTracer.UI.Shared.Generation;
 
 namespace MockTracer.UI.Server.Application.Presentation;
 
+/// <summary>
+/// Mocktracer data source
+/// </summary>
 public class TraceRepository
 {
   private readonly MockTracerDbContext _context;
+  private const int PageSize = 25;
 
+  /// <summary>
+  /// TraceRepository
+  /// </summary>
+  /// <param name="context"><see cref="MockTracerDbContext"/></param>
   public TraceRepository(MockTracerDbContext context)
   {
     _context = context;
   }
 
+  /// <summary>
+  /// saved data
+  /// </summary>
+  /// <param name="page">page number</param>
+  /// <returns>filtered list</returns>
   public async Task<PagedResult<StackScope>> GetTracingAsync(int page)
   {
-    int pageSize = 25;
-
     var result = new PagedResult<StackScope>();
     result.CurrentPage = page;
-    result.PageSize = pageSize;
+    result.PageSize = PageSize;
     result.RowCount = _context.StackScopes.Count();
 
-    var pageCount = (double)result.RowCount / pageSize;
+    var pageCount = (double)result.RowCount / PageSize;
     result.PageCount = (int)Math.Ceiling(pageCount);
 
-    var skip = (page - 1) * pageSize;
+    var skip = (page - 1) * PageSize;
     result.Results = await _context.StackScopes
-                   .OrderByDescending(p => p.Time).Skip(skip).Take(pageSize).ToListAsync();
+                   .OrderByDescending(p => p.Time).Skip(skip).Take(PageSize).ToListAsync();
 
     return result;
   }
 
-  public Task<StackRow[]> GetRowsAsync(Guid scopeId)
+  /// <summary>
+  /// get StackScope
+  /// </summary>
+  /// <param name="scopeId">scopeId</param>
+  /// <returns>finded StackScope</returns>
+  public async Task<StackScope?> GetScopeAsync(Guid scopeId)
   {
-    return _context.StackRows.Where(w => w.ScopeId == scopeId)
-      .Include(i => i.Exception).Include(i => i.Input).Include(i => i.Output).ToArrayAsync();
+    return await _context.StackScopes.Include(s => s.Stack).ThenInclude(k => k.Input)
+              .Include(s => s.Stack).ThenInclude(s => s.Output)
+              .Include(n => n.Stack).ThenInclude(e => e.Exception).FirstOrDefaultAsync(w => w.Id == scopeId);
   }
 
   internal async Task<GenerationContext> GetGenerationDataAsync(GenerationAttributes @params)

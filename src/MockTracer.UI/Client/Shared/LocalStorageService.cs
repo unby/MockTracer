@@ -1,42 +1,42 @@
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using System.Text.Json;
 
-namespace MockTracer.UI.Client.Shared
+namespace MockTracer.UI.Client.Shared;
+
+/// <inheritdoc/>
+public class LocalStorageService : ILocalStorageService
 {
-  public interface ILocalStorageService
+  private IJSRuntime _jsRuntime;
+
+  /// <summary>
+  /// LocalStorageService
+  /// </summary>
+  /// <param name="jsRuntime"><see cref="IJSRuntime"/></param>
+  public LocalStorageService(IJSRuntime jsRuntime)
   {
-    Task<T> GetItem<T>(string key);
-    Task SetItem<T>(string key, T value);
-    Task RemoveItem(string key);
+    _jsRuntime = jsRuntime;
   }
 
-  public class LocalStorageService : ILocalStorageService
+  /// <inheritdoc/>
+  public async Task<T> GetItem<T>(string key)
   {
-    private IJSRuntime _jsRuntime;
+    var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
 
-    public LocalStorageService(IJSRuntime jsRuntime)
-    {
-      _jsRuntime = jsRuntime;
-    }
+    if (json == null)
+      return default;
 
-    public async Task<T> GetItem<T>(string key)
-    {
-      var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
+    return JsonSerializer.Deserialize<T>(json);
+  }
 
-      if (json == null)
-        return default;
+  /// <inheritdoc/>
+  public async Task SetItem<T>(string key, T value)
+  {
+    await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, JsonSerializer.Serialize(value));
+  }
 
-      return JsonSerializer.Deserialize<T>(json);
-    }
-
-    public async Task SetItem<T>(string key, T value)
-    {
-      await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, JsonSerializer.Serialize(value));
-    }
-
-    public async Task RemoveItem(string key)
-    {
-      await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", key);
-    }
+  /// <inheritdoc/>
+  public async Task RemoveItem(string key)
+  {
+    await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", key);
   }
 }

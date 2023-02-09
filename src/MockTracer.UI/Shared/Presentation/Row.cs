@@ -10,4 +10,6 @@ public class Row
   public List<Guid> ParentList { get; set; }
 
   public StackRow Stack { get; set; }
+
+  public int? ParentOrder { get; set; }
 }

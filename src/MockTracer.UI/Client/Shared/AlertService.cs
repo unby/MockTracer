@@ -1,21 +1,12 @@
 ﻿namespace MockTracer.UI.Client.Shared;
 
-public interface IAlertService
-{
-  event Action<AlertModel> OnAlert;
-  void Success(string message, bool keepAfterRouteChange = false, bool autoClose = true);
-  void Error(string message, bool keepAfterRouteChange = false, bool autoClose = true);
-  void Info(string message, bool keepAfterRouteChange = false, bool autoClose = true);
-  void Warn(string message, bool keepAfterRouteChange = false, bool autoClose = true);
-  void Alert(AlertModel alert);
-  void Clear(string id = null);
-}
-
+/// <inheritdoc/>
 public class AlertService : IAlertService
 {
   private const string _defaultId = "default-alert";
   public event Action<AlertModel> OnAlert;
 
+  /// <inheritdoc/>
   public void Success(string message, bool keepAfterRouteChange = false, bool autoClose = true)
   {
     Alert(new AlertModel
@@ -27,6 +18,7 @@ public class AlertService : IAlertService
     });
   }
 
+  /// <inheritdoc/>
   public void Error(string message, bool keepAfterRouteChange = false, bool autoClose = true)
   {
     Alert(new AlertModel
@@ -38,6 +30,7 @@ public class AlertService : IAlertService
     });
   }
 
+  /// <inheritdoc/>
   public void Info(string message, bool keepAfterRouteChange = false, bool autoClose = true)
   {
     Alert(new AlertModel
@@ -49,6 +42,7 @@ public class AlertService : IAlertService
     });
   }
 
+  /// <inheritdoc/>
   public void Warn(string message, bool keepAfterRouteChange = false, bool autoClose = true)
   {
     Alert(new AlertModel
@@ -60,12 +54,14 @@ public class AlertService : IAlertService
     });
   }
 
+  /// <inheritdoc/>
   public void Alert(AlertModel alert)
   {
     alert.Id = alert.Id ?? _defaultId;
     OnAlert?.Invoke(alert);
   }
 
+  /// <inheritdoc/>
   public void Clear(string id = _defaultId)
   {
     OnAlert?.Invoke(new AlertModel { Id = id });

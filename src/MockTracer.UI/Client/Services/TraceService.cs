@@ -9,9 +9,11 @@ using MockTracer.UI.Client.Shared;
 using MockTracer.UI.Shared.Data;
 using MockTracer.UI.Shared.Entity;
 using MockTracer.UI.Shared.Generation;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace MockTracer.UI.Client.Services;
 
+/// <inheritdoc/>
 public class TraceService : ITraceService
 {
   private readonly HttpClient _httpClient;
@@ -19,6 +21,13 @@ public class TraceService : ITraceService
   private NavigationManager _navigationManager;
   private readonly IJSRuntime _jsruntime;
 
+  /// <summary>
+  /// TraceService
+  /// </summary>
+  /// <param name="httpClient"><see cref="HttpClient"/></param>
+  /// <param name="configuration"><see cref="IConfiguration"/></param>
+  /// <param name="navigationManager"><see cref="NavigationManager"/></param>
+  /// <param name="jsruntime"><see cref="IJSRuntime"/></param>
   public TraceService(HttpClient httpClient, IConfiguration configuration, NavigationManager navigationManager, IJSRuntime jsruntime)
   {
     _httpClient = httpClient;
@@ -26,16 +35,20 @@ public class TraceService : ITraceService
     _navigationManager = navigationManager;
     _jsruntime = jsruntime;
   }
+
+  /// <inheritdoc/>
   public async Task<PagedResult<StackScope>> GetTraceListAsync(int page)
   {
     return await Get<PagedResult<StackScope>>($"data/trace-list?page={page}");
   }
 
-  public async Task<StackRow[]> GetTraceRowsAsync(Guid scopeId)
+  /// <inheritdoc/>
+  public async Task<StackScope> GetScopeDefenitionAsync(Guid scopeId)
   {
-    return await Get<StackRow[]>($"data/trace-rows/{scopeId}");
+    return await Get<StackScope>($"data/trace-rows/{scopeId}");
   }
 
+  /// <inheritdoc/>
   public async Task MakeTestAsync(GenerationAttributes attributes)
   {
     var request =  createRequest(HttpMethod.Post, $"data/generate", attributes);
@@ -48,6 +61,7 @@ public class TraceService : ITraceService
       streamRef);
   }
 
+  /// <inheritdoc/>
   public async Task MakeInternalTestAsync(GenerationAttributes attributes)
   {
     var request = createRequest(HttpMethod.Post, $"data/internal-test-generate", attributes);
@@ -60,6 +74,11 @@ public class TraceService : ITraceService
       streamRef);
   }
 
+  /// <inheritdoc/>
+  public Task<ClassGenerationSetting> GetClassGenerationSettingAsync()
+  {
+    return Get<ClassGenerationSetting>($"data/class-settings");
+  }
   protected async Task<T> Get<T>(string uri)
   {
     var request = new HttpRequestMessage(HttpMethod.Get, uri);

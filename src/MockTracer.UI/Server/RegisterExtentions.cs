@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Net.Mime;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text.Json.Serialization;
 using Castle.DynamicProxy;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -102,7 +103,7 @@ public static class RegisterExtentions
       services.AddSingleton(s => s.GetRequiredService<IOptions<MockTracerOption>>().Value.GenerationSetting);
       services.AddHttpContextAccessor();
       services.AddScoped<TraceRepository>();
-      services.AddControllers(o => o.Filters.Add<ActionFilterTracer>()).AddJsonOptions(options => { });
+      services.AddControllers(o => o.Filters.Add<ActionFilterTracer>()).AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; });
       services.RegisterGenerator();
       services.AddScoped<HttpClientTraceHandler>();
 
@@ -153,7 +154,7 @@ public static class RegisterExtentions
 #else
       app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/mocktracer"), first =>
       {
-        var options = CreateStaticFilesOptions(new ResourceProvider());
+        var options = CreateStaticFilesOptions(new AssemblyResourceProvider());
         first.UseEmbededLocalBlazorApp("/mocktracer", options);
         first.UseStaticFiles();
         first.UseRouting();

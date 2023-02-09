@@ -24,10 +24,10 @@ public class MediatorRequestTrace<TRequest, TResponse>
   /// <inheritdoc/>
   public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
   {
-    var info = CreateInfo(request.GetType().FullName);
+    var requestType = typeof(TRequest);
+    var info = CreateInfo(request.GetType().FullName, requestType, next.Method);
     try
     {
-      var requestType = typeof(TRequest);
       _traceStore.AddInputAsync(info, new ArgumentObjectInfo()
       {
         ArgumentName = nameof(request),

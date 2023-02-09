@@ -4,6 +4,7 @@
 @using MockTracer.UI.Client.Services
 @using MockTracer.UI.Shared.Data
 @using MockTracer.UI.Shared.Entity
+@using MockTracer.UI.Shared.Generation
 @using MockTracer.UI.Shared.Presentation
 @inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
 @inject ITraceService TraceService
@@ -47,7 +48,7 @@ else
                     @foreach (var row in stack)
                     {
                         <tr @onclick="()=> ClickedRow(row.Stack)">
-                            <td>@row.Stack.Order</td>
+                            <td><p style=""><sup style="color:#6c757d; top:-.9em">@row.ParentOrder</sup> @row.Stack.Order </p></td>
                             <td>
                                 <input id="{@row.Stack.Order + checkinput}"
                                type="checkbox"
@@ -84,7 +85,7 @@ else
     public Guid Id { get; set; }
 
     Row[] stack = null;
-
+    ClassGenerationSetting settings = null;
     StackRow? selectedRow = null;
     string testName = "testclass.testmethod";
     private async Task MakeTestAsync()
@@ -99,7 +100,8 @@ else
                 });
     }
 
-    private async Task MakeIntrenalTestAsync(){
+    private async Task MakeIntrenalTestAsync()
+    {
         await TraceService.MakeInternalTestAsync(
            new UI.Shared.Generation.GenerationAttributes()
                {
@@ -117,8 +119,17 @@ else
 
     protected async override Task OnParametersSetAsync()
     {
-        var list = await TraceService.GetTraceRowsAsync(Id);
-        stack = list.Select(s => new Row() { Stack = s, IsInput = s.Order == 1, ParentList = GetParent(list, s), IsOutput = !list.Any(a => a.ParentId == s.Id) }).ToArray();
+        settings = await TraceService.GetClassGenerationSettingAsync();
+        var scope = await TraceService.GetScopeDefenitionAsync(Id);
+        stack = scope.Stack.Select(s => new Row()
+            {
+                Stack = s,
+                IsInput = s.Order == 1,
+                ParentList = GetParent(scope.Stack, s),
+                IsOutput = !scope.Stack.Any(a => a.ParentId == s.Id),
+                ParentOrder = scope.Stack.FirstOrDefault(a => a.Id == s.ParentId)?.Order
+            }).ToArray();
+        testName = settings.DefaultNameSpace + "." + settings.DefaultClassName + "Test." + settings.DefaultMethodName;
     }
 
     public void CheckInput(Row row, ChangeEventArgs checkedValue)
@@ -133,6 +144,7 @@ else
                 }
                 else
                 {
+                    testName = settings.DefaultNameSpace + "." + item.Stack.GetClassName() + "." + item.Stack.GetMethodName();
                     item.IsInput = true;
                 }
             }
@@ -156,7 +168,7 @@ else
         }
     }
 
-    private List<Guid> GetParent(StackRow[] stacks, StackRow curent)
+    private List<Guid> GetParent(IList<StackRow> stacks, StackRow curent)
     {
         var reslut = new List<Guid>();
         if (curent.ParentId == null)
