@@ -2,7 +2,7 @@
 using MockTracer.Test.Api.Domain;
 using MockTracer.Test.Api.Infrastracture.External;
 
-namespace MockTracer.Test.Api.Application.Features.Topic;
+namespace MockTracer.Test.Api.Application.Features.HTTP;
 
 public class CatFactQueryHandler : IRequestHandler<CatFactQuery, CatFact>
 {
@@ -20,7 +20,7 @@ public class CatFactQueryHandler : IRequestHandler<CatFactQuery, CatFact>
       var x = await _service.GetCatFactAsync();
       return x;
     }
-    catch(Exception ex)
+    catch (Exception ex)
     {
       Console.WriteLine(ex);
       return null;

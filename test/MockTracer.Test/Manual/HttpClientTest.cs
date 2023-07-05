@@ -2,7 +2,8 @@
 using System.Text;
 using JustEat.HttpClientInterception;
 using MediatR;
-using MockTracer.Test.Api.Application.Features.Data;
+using MockTracer.Test.Api.Application.Features.HTTP;
+using MockTracer.Test.Api.Application.Features.SQL;
 using MockTracer.Test.Api.Application.Features.Topic;
 using MockTracer.Test.Api.Controllers;
 using MockTracer.Test.Api.Domain;

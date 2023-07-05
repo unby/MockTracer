@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MockTracer.Test.Api.Application.Features.HTTP;
 
 namespace MockTracer.Test.Api.Application.Features.Topic;
 

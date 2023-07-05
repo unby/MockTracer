@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using MockTracer.Test.Api.Application.Features.Data;
+using MockTracer.Test.Api.Application.Features.SQL;
 using MockTracer.Test.Api.Domain;
 using MockTracer.Test.Api.Infrastracture.Database;
 using MockTracer.Test.Api.Infrastracture.External;
@@ -33,7 +33,7 @@ public class Startup
     services.AddScoped<IDataSource, DataSource>();
     services.AddScoped<IDbProvider, DbProvider>(s => new DbProvider("Filename=Blog.db"));
     services.AddDbContext<BlogDbContext>(options =>
-                    options.UseSqlite("Filename=Blog.db"));
+                    options.AddInterceptors(new KeyOrderingExpressionInterceptor()).UseSqlite("Filename=Blog.db").UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll));
     services.AddRefitClient<ICatService>().ConfigureHttpClient(c => c.BaseAddress = new Uri(Configuration.GetValue<string>("CatApiUrl")));
     services.UseMockTracerUiService((s) => { s.DecorateDbProvider<IDbProvider>(); s.DecorateVirtual<IDataSource>(); });
   }

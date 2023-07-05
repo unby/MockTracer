@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MockTracer.Test.Api.Application.Features.HTTP;
 using MockTracer.Test.Api.Application.Features.Topic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace MockTracer.Test.Api.Controllers;
@@ -23,31 +25,18 @@ public class TopicController : ControllerBase
     return Ok(await _mediator.Send(new TopicQuery()));
   }
 
+  /// <summary>
+  /// SingleRow, SystemDate, MultupleQueryAsync, UserList, ExecuteNonQuery
+  /// </summary>
+  /// <param name="type"></param>
+  /// <returns></returns>
   [HttpGet("sql-call")]
   [ProducesResponseType((int)HttpStatusCode.OK)]
-  public async Task<IActionResult> SqlCallAsync(int type)
+  public async Task<IActionResult> SqlCallAsync([Required] string type)
   {
-    if(type == 0)
-    {
-      return Ok(await _mediator.Send(new SqldDataComandHandler.SingleRow()));
-    }
-    else if(type == 1)
-    {
-      return Ok(await _mediator.Send(new SqldDataComandHandler.SystemDate()));
-    }
-    else if (type == 2)
-    {
-      return Ok(await _mediator.Send(new SqldDataComandHandler.MultupleQueryAsync()));
-    }
-    else if (type == 3)
-    {
-      return Ok(await _mediator.Send(new SqldDataComandHandler.UserList()));
-    }
-    else
-    {
-      return Ok(await _mediator.Send(new SqldDataComandHandler.ExecuteNonQuery()));
-    }
+    return Ok(await _mediator.Send(ResolveHandler("SqldDataComandHandler", type)));
   }
+
 
   [HttpGet("fact")]
   [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -55,6 +44,14 @@ public class TopicController : ControllerBase
   {
     return Ok(await _mediator.Send(new CatFactQuery()));
   }
+
+  [HttpGet("mediator-exception")]
+  [ProducesResponseType((int)HttpStatusCode.OK)]
+  public async Task<IActionResult> MediatorExceptionAsync()
+  {
+    return Ok(await _mediator.Send(new ExceptionQuery()));
+  }
+  
 
   [HttpGet("multiple-query")]
   [ProducesResponseType((int)HttpStatusCode.Accepted)]
@@ -68,5 +65,26 @@ public class TopicController : ControllerBase
   public async Task<IActionResult> CreateArticle([FromBody] CreateTopicCommand request)
   {
     return Ok(await _mediator.Send(request));
+  }
+
+  private object ResolveHandler(string type, string nestedName = null)
+  {
+    try
+    {
+      if (nestedName != null)
+      {
+        var n = GetType().Assembly.GetTypes().Where(w=>w.Name==type).SelectMany(s => s.GetNestedTypes()).FirstOrDefault(f=>f.Name == nestedName);
+        return Activator.CreateInstance(n);
+      }
+      else
+      {
+        return Activator.CreateInstance(GetType().Assembly.FullName, type);
+      }
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine(ex);
+      throw;
+    }
   }
 }

@@ -7,7 +7,8 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
 
 namespace MockTracer.UI.Server.Application.Generation;
 
@@ -204,7 +205,7 @@ internal static class FragmentExtention
       }
 
       StringBuilder sb = new StringBuilder();
-   
+
       sb.Append('<');
       bool appendComma = false;
       foreach (Type arg in generics)
@@ -256,14 +257,47 @@ internal static class FragmentExtention
 
   public static string ArrangeUsingRoslyn(this string csCode)
   {
-    SyntaxTree tree = CSharpSyntaxTree.ParseText(csCode);
-    CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
+    var cw = new AdhocWorkspace();
+    cw.Options.WithChangedOption(CSharpFormattingOptions.NewLineForClausesInQuery, true)
+      .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
+      .WithChangedOption(CSharpFormattingOptions.IndentBraces, false)
+      .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSection, true)
+      .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSectionWhenBlock, true)
+      .WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, true)
+      .WithChangedOption(CSharpFormattingOptions.LabelPositioning, LabelPositionOptions.OneLess)
 
-    var container = tree.GetText().Container;
-    var workspace = new AdhocWorkspace();
-    Console.WriteLine(workspace);
+      .WithChangedOption(CSharpFormattingOptions.NewLineForCatch, true)
+      .WithChangedOption(CSharpFormattingOptions.NewLineForElse, true)
+      .WithChangedOption(CSharpFormattingOptions.NewLineForFinally, true)
+      .WithChangedOption(CSharpFormattingOptions.NewLineForMembersInAnonymousTypes, true)
+      .WithChangedOption(CSharpFormattingOptions.NewLineForMembersInObjectInit, true)
+      .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInControlBlocks, true)
+      .WithChangedOption(CSharpFormattingOptions.NewLineForClausesInQuery, true)
 
-    var temp = Formatter.Format(root, workspace);
-    return temp.ToFullString();
+      .WithChangedOption(CSharpFormattingOptions.SpaceAfterCast, false)
+      .WithChangedOption(CSharpFormattingOptions.SpaceAfterColonInBaseTypeDeclaration, true)
+      .WithChangedOption(CSharpFormattingOptions.SpaceAfterComma, true)
+      .WithChangedOption(CSharpFormattingOptions.SpaceAfterDot, false)
+      .WithChangedOption(CSharpFormattingOptions.SpaceAfterControlFlowStatementKeyword, true)
+      .WithChangedOption(CSharpFormattingOptions.SpaceAfterSemicolonsInForStatement, true)
+      .WithChangedOption(CSharpFormattingOptions.SpacingAroundBinaryOperator, BinaryOperatorSpacingOptions.Ignore)
+      .WithChangedOption(CSharpFormattingOptions.SpaceAfterColonInBaseTypeDeclaration, false)
+      .WithChangedOption(CSharpFormattingOptions.SpaceBeforeColonInBaseTypeDeclaration, false)
+      .WithChangedOption(CSharpFormattingOptions.SpaceBetweenEmptySquareBrackets, false)
+      .WithChangedOption(CSharpFormattingOptions.SpaceBetweenEmptyMethodCallParentheses, false)
+      .WithChangedOption(CSharpFormattingOptions.SpaceBetweenEmptyMethodDeclarationParentheses, false)
+      .WithChangedOption(CSharpFormattingOptions.SpaceBetweenEmptySquareBrackets, false)
+
+      .WithChangedOption(CSharpFormattingOptions.WrappingPreserveSingleLine, true)
+      .WithChangedOption(CSharpFormattingOptions.WrappingKeepStatementsOnSingleLine, true)
+
+      .WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n")
+      .WithChangedOption(FormattingOptions.UseTabs, LanguageNames.CSharp, false)
+      .WithChangedOption(FormattingOptions.IndentationSize, LanguageNames.CSharp, 4)
+      .WithChangedOption(FormattingOptions.TabSize, LanguageNames.CSharp, 4);
+
+    var root = SyntaxFactory.ParseCompilationUnit(csCode);
+    var formattedRoot = Formatter.Format(root, cw);
+    return formattedRoot.ToFullString();
   }
 }

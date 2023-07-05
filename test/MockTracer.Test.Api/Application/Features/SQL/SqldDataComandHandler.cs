@@ -1,9 +1,8 @@
 ﻿using MediatR;
-using MockTracer.Test.Api.Application.Features.Data;
 using MockTracer.Test.Api.Domain;
-using static MockTracer.Test.Api.Application.Features.Topic.SqldDataComandHandler;
+using static MockTracer.Test.Api.Application.Features.SQL.SqldDataComandHandler;
 
-namespace MockTracer.Test.Api.Application.Features.Topic;
+namespace MockTracer.Test.Api.Application.Features.SQL;
 
 public class SqldDataComandHandler :
   IRequestHandler<ExecuteNonQuery, int>,

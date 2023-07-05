@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.ComponentModel;
+using System.Data;
 using System.Text;
 using System.Text.Json;
 using MockTracer.UI.Server.Application.Generation.Common;
@@ -19,7 +20,7 @@ public class DbConnectionMockBuilder : MockPointBuilderBase
     IgnoreIndexers = true,
     LineBreakChar = string.Empty,
   };
-  
+
   public DbConnectionMockBuilder(VariableNameReslover nameReslover)
     : base(nameReslover)
   {
@@ -59,15 +60,15 @@ public class DbConnectionMockBuilder : MockPointBuilderBase
 
       if (dataSet.Count > 1)
       {
-        sb.AppendLine(".ReturnsDataset(");
+        sb.AppendLine("  .ReturnsDataset(");
         var count = 1;
         foreach (var item in dataSet)
         {
           sb.AppendLine($"\t\t\tMockTable.WithColumns({string.Join(", ", item.Header.OrderBy(o => o.Value.Index).Select(s => $"\"{s.Value.Name}\""))})");
-          foreach (var dataRow in item.Data)
+          foreach (var dataRow in item.Data.Select(s => DataSet.Parse(s)))
           {
-            sb.Append(".AddRow(");
-            sb.Append(ObjectDumper.Dump(dataRow, _arraySharpOptions).Trim());
+            sb.Append("    .AddRow(");
+            sb.Append(string.Join(", ", dataRow));
             sb.Append(")");
           }
           if (count++ != dataSet.Count)
@@ -82,16 +83,16 @@ public class DbConnectionMockBuilder : MockPointBuilderBase
       {
         if (dataSet.Count == 1)
         {
-          sb.Append(".ReturnsTable(");
+          sb.Append("  .ReturnsTable(");
           var item = dataSet.First();
 
           sb.Append($"MockTable.WithColumns(");
           sb.Append(string.Join(", ", item.Header.OrderBy(o => o.Value.Index).Select(s => $"\"{s.Value.Name}\"")));
           sb.Append(")");
-          foreach (var dataRow in item.Data)
+          foreach (var dataRow in item.Data.Select(s => DataSet.Parse(s)))
           {
-            sb.Append(".AddRow(");
-           sb.Append(ObjectDumper.Dump(dataRow, _arraySharpOptions));
+            sb.Append("    .AddRow(");
+            sb.Append(string.Join(", ", dataRow));
             sb.Append(")");
           }
 
@@ -99,7 +100,7 @@ public class DbConnectionMockBuilder : MockPointBuilderBase
         }
         else
         {
-          sb.Append($".ReturnsScalar({row.Output.ShortView});");
+          sb.Append($"  .ReturnsScalar({row.Output.ShortView});");
         }
       }
 

@@ -1,6 +1,6 @@
 ﻿using MockTracer.Test.Api.Domain;
 
-namespace MockTracer.Test.Api.Application.Features.Data;
+namespace MockTracer.Test.Api.Application.Features.SQL;
 
 public interface IDataSource
 {

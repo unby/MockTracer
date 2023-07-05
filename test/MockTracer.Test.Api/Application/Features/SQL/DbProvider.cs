@@ -3,7 +3,7 @@ using Microsoft.Data.Sqlite;
 using MockTracer.UI.Server.Application.Watcher;
 using MockTracer.UI.Server.Application.Watcher.Database;
 
-namespace MockTracer.Test.Api.Application.Features.Data;
+namespace MockTracer.Test.Api.Application.Features.SQL;
 
 public class DbProvider : IDbProvider
 {
