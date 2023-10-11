@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MockTracer.Test.Api.Application.Features.HTTP;
+using MockTracer.Test.Api.Application.Features.SQL;
 using MockTracer.Test.Api.Application.Features.Topic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
@@ -26,17 +27,59 @@ public class TopicController : ControllerBase
   }
 
   /// <summary>
-  /// SingleRow, SystemDate, MultupleQueryAsync, UserList, ExecuteNonQuery
+  /// SingleRow
   /// </summary>
-  /// <param name="type"></param>
   /// <returns></returns>
-  [HttpGet("sql-call")]
+  [HttpGet("sql-call/SingleRow")]
   [ProducesResponseType((int)HttpStatusCode.OK)]
-  public async Task<IActionResult> SqlCallAsync([Required] string type)
+  public async Task<IActionResult> SqlSingleRowAsync()
   {
-    return Ok(await _mediator.Send(ResolveHandler("SqldDataComandHandler", type)));
+    return Ok(await _mediator.Send(new SqldDataComandHandler.SingleRow()));
   }
 
+  /// <summary>
+  /// ExecuteNonQuery
+  /// </summary>
+  /// <returns></returns>
+  [HttpGet("sql-call/ExecuteNonQuery")]
+  [ProducesResponseType((int)HttpStatusCode.OK)]
+  public async Task<IActionResult> SqlExecuteNonQueryAsync()
+  {
+    return Ok(await _mediator.Send(new SqldDataComandHandler.ExecuteNonQuery()));
+  }
+
+  /// <summary>
+  /// SystemDate
+  /// </summary>
+  /// <returns></returns>
+  [HttpGet("sql-call/SystemDate")]
+  [ProducesResponseType((int)HttpStatusCode.OK)]
+  public async Task<IActionResult> SqlSystemDateAsync()
+  {
+    return Ok(await _mediator.Send(new SqldDataComandHandler.SystemDate()));
+  }
+
+  /// <summary>
+  /// MultupleQueryAsync
+  /// </summary>
+  /// <returns></returns>
+  [HttpGet("sql-call/MultupleQueryAsync")]
+  [ProducesResponseType((int)HttpStatusCode.OK)]
+  public async Task<IActionResult> SqlMultupleQueryAsync()
+  {
+    return Ok(await _mediator.Send(new SqldDataComandHandler.MultupleQueryAsync()));
+  }
+
+  /// <summary>
+  /// UserList
+  /// </summary>
+  /// <returns></returns>
+  [HttpGet("sql-call/UserList")]
+  [ProducesResponseType((int)HttpStatusCode.OK)]
+  public async Task<IActionResult> SqlUserListAsync()
+  {
+    return Ok(await _mediator.Send(new SqldDataComandHandler.UserList()));
+  }
 
   [HttpGet("fact")]
   [ProducesResponseType((int)HttpStatusCode.OK)]

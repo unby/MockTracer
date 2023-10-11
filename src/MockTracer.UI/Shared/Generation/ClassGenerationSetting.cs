@@ -36,4 +36,9 @@ public class ClassGenerationSetting
   /// parent class
   /// </summary>
   public string TestBase { get; set; } = "SampleTestBase";
+
+  /// <summary>
+  /// output directory
+  /// </summary>
+  public string DefaultFolder { get; set; }= string.Empty;
 }

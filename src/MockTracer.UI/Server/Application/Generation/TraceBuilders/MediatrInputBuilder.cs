@@ -27,17 +27,21 @@ public class MediatrInputBuilder : InputPointBuilderBase
 
       result.Add(BuildingConstans.Action.Line(@$"var mediator = host.GetInstance<IMediator>();"));
 
-
-      if (row.Output.ClassName.EndsWith("Task"))
+      if (row.Output != null)
       {
-        result.Add(BuildingConstans.Action.Line(@$"await mediator.Send({input.SharpCode});"));
+        if (row.Output.ClassName.EndsWith("Task"))
+        {
+          result.Add(BuildingConstans.Action.Line(@$"await mediator.Send({input.SharpCode});"));
+        }
+        else
+        {
+          result.Add(BuildingConstans.Action.Line(@$"var result = await mediator.Send({input.SharpCode});"));
+          result.Add(BuildingConstans.Assert.Line(@$"/* Assert.Equal({row.Output.SharpCode}, result); */"));
+        }
       }
-      else
+      else if(row.Exception!=null)
       {
-        result.Add(BuildingConstans.Action.Line(@$"var result = await mediator.Send({input.SharpCode});"));
-        result.Add(BuildingConstans.Assert.Line(@$"/*
-Assert.Equal({row.Output.SharpCode}, result);
-*/"));
+        result.Add(BuildingConstans.Assert.Line(@$"Assert.Throws<{row.Exception.ClassName}>(() => await mediator.Send({input.SharpCode}));"));
       }
 
     }

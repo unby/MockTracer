@@ -38,5 +38,7 @@ public class TraceInfo
   /// Called method
   /// </summary>
   public MethodInfo? CalledMethod { get; init; }
+
+  public Type? OutputType { get; init; }
 }
 

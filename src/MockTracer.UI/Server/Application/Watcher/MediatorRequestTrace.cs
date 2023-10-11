@@ -25,7 +25,8 @@ public class MediatorRequestTrace<TRequest, TResponse>
   public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
   {
     var requestType = typeof(TRequest);
-    var info = CreateInfo(request.GetType().FullName, requestType, next.Method);
+    var responseType = typeof(TResponse);
+    var info = CreateInfo(request.GetType().FullName, requestType, next.Method, responseType);
     try
     {
       _traceStore.AddInputAsync(info, new ArgumentObjectInfo()
@@ -36,7 +37,7 @@ public class MediatorRequestTrace<TRequest, TResponse>
         OriginalObject = request
       });
       var response = await next();
-      var responseType = typeof(TResponse);
+     
       _traceStore.AddOutputAsync(info, new ArgumentObjectInfo()
       {
         ArgumentName = nameof(response),
@@ -54,7 +55,7 @@ public class MediatorRequestTrace<TRequest, TResponse>
   }
 
   /// <inheritdoc/>
-  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null)
+  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null, Type? outputType = null)
   {
     return new TraceInfo()
     {

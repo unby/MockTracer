@@ -30,6 +30,7 @@ else
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="#">New feature</a></li>
                     <li><a class="dropdown-item" href="#">New feature 2</a></li>
+                    <li><a class="dropdown-item" title="@settings.DefaultFolder" @onclick="MakeTestAndSaveToProjectAsync" >Save to project</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" @onclick="MakeIntrenalTestAsync">Internal geneartion</a></li>
                 </ul>
@@ -107,6 +108,16 @@ else
                {
                    ScopeId = stack[0].Stack.ScopeId,
                    InputId = stack.First(f => f.IsInput).Stack.Id,
+                   OutputId = stack.Where(w => w.IsOutput).Select(s => s.Stack.Id).ToArray(),
+                   TestName = testName
+               });
+    }
+
+    {
+        await TraceService.MakeTestAndSaveToProjectAsync(
+           new UI.Shared.Generation.GenerationAttributes()
+               {
+                   ScopeId = stack[0].Stack.ScopeId,
                    OutputId = stack.Where(w => w.IsOutput).Select(s => s.Stack.Id).ToArray(),
                    TestName = testName
                });

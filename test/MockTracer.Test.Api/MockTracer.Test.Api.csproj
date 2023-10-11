@@ -8,10 +8,11 @@
       true
     </EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
-
+ 
   <ItemGroup>
     <PackageReference Include="AgileObjects.ReadableExpressions" Version="4.0.0" />
     <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
     <PackageReference Include="MediatR" Version="11.1.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.3" />
@@ -23,10 +24,11 @@
     <PackageReference Include="Refit.HttpClientFactory" Version="6.3.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
-
+  
   
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
     <ProjectReference Condition="$(Configuration)=='Debug'" Include="..\..\src\MockTracer.UI\Client\MockTracer.UI.Client.csproj" />
     <ProjectReference Include="..\..\src\MockTracer.UI\Server\MockTracer.UI.Server.csproj" />
   </ItemGroup>

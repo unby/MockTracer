@@ -31,7 +31,7 @@ public sealed class DbCommandMocker : DbCommand, IDbCommand, ITracer, IDataFlush
   }
 
   /// <inheritdoc/>
-  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null)
+  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null, Type? outputType = null)
   {
     _traceInfo ??= new TraceInfo()
     {

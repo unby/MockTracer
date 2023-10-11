@@ -66,6 +66,13 @@ public class DataController : ControllerBase
     };
   }
 
+  [HttpPost("save")]
+  public async Task<ActionResult> SaveTestAsync(GenerationAttributes @params)
+  {
+    await _generator.CreateAndSaveAsync(@params);
+    return Ok();
+  }
+
   [HttpPost("internal-test-generate")]
   public async Task<ActionResult> UnitTestAsync(GenerationAttributes @params)
   {

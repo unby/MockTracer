@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using Hellang.Middleware.ProblemDetails;
 using MediatR;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MockTracer.Test.Api.Application.Features.SQL;
@@ -23,8 +25,10 @@ public class Startup
   {
 
     services.AddControllers();
+    services.AddProblemDetails();
     services.AddSwaggerGen(c =>
     {
+      c.EnableAnnotations();
       c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
     });
     services.AddMediatR(Assembly.Load(typeof(Startup).GetTypeInfo().Assembly.GetName().Name));
@@ -35,7 +39,13 @@ public class Startup
     services.AddDbContext<BlogDbContext>(options =>
                     options.AddInterceptors(new KeyOrderingExpressionInterceptor()).UseSqlite("Filename=Blog.db").UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll));
     services.AddRefitClient<ICatService>().ConfigureHttpClient(c => c.BaseAddress = new Uri(Configuration.GetValue<string>("CatApiUrl")));
-    services.UseMockTracerUiService((s) => { s.DecorateDbProvider<IDbProvider>(); s.DecorateVirtual<IDataSource>(); });
+
+    services.UseMockTracerUiService((s) =>
+    {
+      s.DecorateDbProvider<IDbProvider>();
+      s.DecorateVirtual<IDataSource>();
+    },
+      s => { s.GenerationSetting.DefaultFolder = @"C:\git\MoqTracer\test\MockTracer.Test\Generated"; });
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,10 +59,12 @@ public class Startup
     }
 
     app.UseHttpsRedirection();
-    
 
+    app.UseProblemDetails();
     app.UseRouting();
+
     app.UseMockTracerUiApp();
+
     app.UseAuthorization();
 
     app.UseEndpoints(endpoints =>

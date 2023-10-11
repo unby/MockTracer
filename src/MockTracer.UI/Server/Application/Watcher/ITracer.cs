@@ -13,6 +13,7 @@ public interface ITracer
   /// <param name="title">specific info</param>
   /// <param name="type">called type</param>
   /// <param name="methodInfo">called method</param>
+  /// <param name="outputType">outputType</param>
   /// <returns><see cref="TraceInfo"/></returns>
-  TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null);
+  TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null, Type? outputType = null);
 }

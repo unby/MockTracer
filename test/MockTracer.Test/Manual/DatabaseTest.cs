@@ -20,7 +20,7 @@ public class DatabaseTest : SampleTestBase
               MockTable.WithColumns("SomeNumber", "Name").AddRow(45, "sdf").AddRow(76, "rtyrt"));
         // act
         var host = NewServer(services => services.SetTestDBConnectionProvider<IDbProvider>(mockDB));
-        var result = await host.GetHttpClient().GetAsync("/api/topic/v10/sql-call?type=SingleRow");
+        var result = await host.GetHttpClient().GetAsync("/api/topic/v10/sql-call/SingleRow");
 
         Assert.Equal(HttpStatusCode.OK, result.StatusCode);
         Assert.Equal(host.GetInstance<IDbProvider>().GetDbConnection(), mockDB);

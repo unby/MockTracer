@@ -28,6 +28,7 @@ public class MvcFilterBuilder : InputPointBuilderBase
   public override IEnumerable<LineFragment> BuildFragments(StackRow row)
   {
     var result = new List<LineFragment>();
+    result.Add(BuildingConstans.Using.Line("using System.Net;"));
     try
     {
       var data = row.Input?.FirstOrDefault();
@@ -47,41 +48,47 @@ public class MvcFilterBuilder : InputPointBuilderBase
       result.Add(BuildingConstans.Assert.Line("// Faild assert block", ex));
     }
 
-    try
+    if (row.Output != null)
     {
-      var response = JsonSerializer.Deserialize<TraceHttpReponse>(row.Output.AddInfo);
-      var status = (HttpStatusCode)response.StatusCode;
-      result.Add(BuildingConstans.Assert.Line($"Assert.Equal(HttpStatusCode.{status}, httpResult.StatusCode);"));
-    }
-    catch (Exception ex)
-    {
-      result.Add(BuildingConstans.Assert.Line("// Faild assert block", ex));
-    }
-
-    try
-    {
-     
-      if (row.Output?.SharpCode != null)
+      try
       {
-        var type = row.Output.FullName.FindType();
-        if(type == null)
+        var response = JsonSerializer.Deserialize<TraceHttpReponse>(row.Output.AddInfo);
+        var status = (HttpStatusCode)response.StatusCode;
+        result.Add(BuildingConstans.Assert.Line($"Assert.Equal(HttpStatusCode.{status}, httpResult.StatusCode);"));
+      }
+      catch (Exception ex)
+      {
+        result.Add(BuildingConstans.Assert.Line("// Faild assert block", ex));
+      }
+
+      try
+      {
+
+        if (row.Output?.SharpCode != null)
         {
-          result.Add(BuildingConstans.Assert.Line($"// Unknown type {row.Output.FullName}"));
-        }
-        else if (type.IsClass)
-        {
-          result.Add(BuildingConstans.Assert.Line($"Assert.Equal({row.Output.SharpCode}, httpResult.ReadJson<{type.GetRealTypeName()}>());"));
-        }
-        else
-        {
-          result.Add(BuildingConstans.Assert.Line($"Assert.Equal(\"{row.Output.SharpCode}\", httpResult.Content.ReadAsStringAsync().Result);"));
+          var type = row.Output.FullName.FindType();
+          if (type == null)
+          {
+            result.Add(BuildingConstans.Assert.Line($"// Unknown type {row.Output.FullName}"));
+          }
+          else if (type.IsClass)
+          {
+            result.Add(BuildingConstans.Assert.Line($"Assert.Equal({row.Output.SharpCode}, httpResult.ReadJson<{type.GetRealTypeName()}>());"));
+          }
+          else
+          {
+            result.Add(BuildingConstans.Assert.Line($"Assert.Equal(\"{row.Output.SharpCode}\", httpResult.Content.ReadAsStringAsync().Result);"));
+          }
         }
       }
-     
+      catch (Exception ex)
+      {
+        result.Add(BuildingConstans.Assert.Line("// Faild assert block", ex));
+      }
     }
-    catch (Exception ex)
+    else if (row.Exception != null)
     {
-      result.Add(BuildingConstans.Assert.Line("// Faild assert block", ex));
+      result.Add(BuildingConstans.Assert.Line($"Assert.NotEqual(HttpStatusCode.OK, httpResult.StatusCode);"));
     }
 
     return result;

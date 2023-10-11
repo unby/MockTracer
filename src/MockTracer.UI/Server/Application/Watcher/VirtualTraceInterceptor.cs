@@ -25,7 +25,7 @@ public class VirtualTraceInterceptor : IInterceptor, ITracer
   }
 
   /// <inheritdoc/>
-  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null)
+  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null, Type? outputType = null)
   {
     return new TraceInfo()
     {

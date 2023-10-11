@@ -20,14 +20,14 @@ public class {{className}} : {{TestBase}}
   [Fact]
   public async Task {{methodName}}Async()
   {
-    // prepare
+    // Arrange
     {{Prepare}}
 
-    // action services => { }
+    // Act
     var host = NewServer((s) => {{Configure}});
     {{Action}}
 
-    // todo: assert
+    // todo: Assert
     {{Assert}}
   }{{BigVariable}}
 }{{nameSpace]}}";

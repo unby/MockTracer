@@ -49,6 +49,6 @@ public class DataSource : IDataSource
   {
     using var con = _dbProvider.GetDbConnection();
 
-    return con.ExecuteScalar<DateTime>("select date()", new { date1 = DateTime.Now, number2 = 666, strCode = DateTime.Now.ToString("MMM") });
+    return con.ExecuteScalar<DateTime>("select date()", new { date1 = DateTime.Now.AddDays(-1), number2 = 666, strCode = DateTime.Now.ToString("MMM") });
   }
 }

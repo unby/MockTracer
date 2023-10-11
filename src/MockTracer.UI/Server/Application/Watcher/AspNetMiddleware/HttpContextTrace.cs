@@ -78,7 +78,7 @@ public class HttpContextTrace : ITracer
   }
 
   /// <inheritdoc/>
-  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null)
+  public TraceInfo CreateInfo(string title, Type? type = null, MethodInfo? methodInfo = null, Type? outputType = null)
   {
     return new TraceInfo()
     {
@@ -87,6 +87,7 @@ public class HttpContextTrace : ITracer
       TracerType = Constants.HttpContext,
       CalledType = type,
       CalledMethod = methodInfo,
+      OutputType = outputType,
     };
   }
 

@@ -48,6 +48,16 @@ internal static class FragmentExtention
     return obj.ClassName;
   }
 
+  public static List<LineFragment> AddNameSpace(this List<LineFragment> lines, params string[] nameSpaces)
+  {
+    foreach (var space in nameSpaces)
+    {
+      lines.Add(new LineFragment(BuildingConstans.Using, $"using {space};"));
+    }
+
+    return lines;
+  }
+
   private static string GetLineNumber(Exception ex)
   {
     const string lineSearch = ":line ";
@@ -153,10 +163,10 @@ internal static class FragmentExtention
     {
       if (withNamespace)
       {
-        return type.Namespace + "." + type.Name;
+        return type.Namespace + "." + (type.ReflectedType == null ? type.Name : type.ReflectedType.Name + "." + type.Name);
       }
 
-      return type.Name;
+      return type.ReflectedType == null ? type.Name : type.ReflectedType.Name + "." + type.Name;
     }
 
 

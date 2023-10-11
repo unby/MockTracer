@@ -75,6 +75,13 @@ public class TraceService : ITraceService
   }
 
   /// <inheritdoc/>
+  public async Task MakeTestAndSaveToProjectAsync(GenerationAttributes attributes)
+  {
+    var request = createRequest(HttpMethod.Post, $"data/save", attributes);
+    using var response = await _httpClient.SendAsync(request);
+  }
+
+  /// <inheritdoc/>
   public Task<ClassGenerationSetting> GetClassGenerationSettingAsync()
   {
     return Get<ClassGenerationSetting>($"data/class-settings");

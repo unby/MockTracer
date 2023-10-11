@@ -15,15 +15,25 @@ public class MediatorMockBuilder : MockPointBuilderBase
 
   public override IEnumerable<LineFragment> BuildFragments(StackRow row)
   {
-    var result = new List<LineFragment>();
+    var result = new List<LineFragment>(8);
     try
     {
+      result.AddNameSpace("MediatR", "Moq");
       var input = result.ResolveClassName(row.Input.First());
-      var output = result.ResolveClassName(row.Output);
       var variable = NameReslover.CheckName($"{row.Input.FirstOrDefault().Name}MockObject");
-      result.Add(BuildingConstans.Prepare.Line($"var {variable} = new Mock<IRequestHandler<{input}, {output}>>();"));
-      result.Add(BuildingConstans.Prepare.Line($"{variable}.Setup(s => s.Handle(It.IsAny<{input}>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult<{output}>({ResolveName(row.Output, result)}));"));
 
+      if (row.Output != null)
+      {
+        var output = result.ResolveClassName(row.Output);
+        result.Add(BuildingConstans.Prepare.Line($"var {variable} = new Mock<IRequestHandler<{input}, {output}>>();"));
+        result.Add(BuildingConstans.Prepare.Line($"{variable}.Setup(s => s.Handle(It.IsAny<{input}>(), It.IsAny<CancellationToken>())).ReturnsAsync({ResolveName(row.Output, result)});"));
+      }
+      else
+      {
+        // todo: убрать Task из row.OutputTypeName 
+        result.Add(BuildingConstans.Prepare.Line($"var {variable} = new Mock<IRequestHandler<{input}, {row.OutputTypeName}>>();"));
+        result.Add(BuildingConstans.Prepare.Line($"{variable}.Setup(s => s.Handle(It.IsAny<{input}>(), It.IsAny<CancellationToken>())).Throws({row.Exception.SharpCode}));"));
+      }
       result.Add(BuildingConstans.Configure.Line($"s.Replace({variable})"));
     }
     catch (Exception ex)

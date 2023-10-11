@@ -8,7 +8,7 @@ public class HttpRouteOptions
   /// <summary>
   /// controller API routes
   /// </summary>
-  public string[] Allows { get; set; } = new string[0];
+  public string[] Allows { get; set; } = new[] { "*" };
 
   /// <summary>
   /// simple http route (without ControllerBase handler)

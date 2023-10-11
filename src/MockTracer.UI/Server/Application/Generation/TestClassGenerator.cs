@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using MockTracer.UI.Server.Application.Presentation;
+using MockTracer.UI.Server.Options;
 using MockTracer.UI.Shared.Generation;
 
 namespace MockTracer.UI.Server.Application.Generation;
@@ -10,9 +11,9 @@ public class TestClassGenerator
   private readonly IBuilderResolver _builderResolver;
   private ClassGenerationSetting _options;
 
-  public TestClassGenerator(IOptions<ClassGenerationSetting> options, TraceRepository traceRepository, IBuilderResolver builderResolver)
+  public TestClassGenerator(IOptions<MockTracerOption> options, TraceRepository traceRepository, IBuilderResolver builderResolver)
   {
-    _options = options.Value;
+    _options = options.Value.GenerationSetting;
     _traceRepository = traceRepository;
     _builderResolver = builderResolver;
   }
@@ -30,6 +31,24 @@ public class TestClassGenerator
       settings,
       data)
     };
+  }
+
+  public async Task CreateAndSaveAsync(GenerationAttributes @params)
+  {
+    var data = await _traceRepository.GetGenerationDataAsync(@params);
+    var builder = _builderResolver.ResolveTemplateBuilder(@params.TemplateCode);
+    var settings = CombineSettings(@params.TestName, _options);
+    var name = Path.Combine(_options.DefaultFolder, settings.DefaultClassName + ".cs.tmp");
+    var count = 1;
+    while (File.Exists(name)) {
+      name = Path.Combine(_options.DefaultFolder, settings.DefaultClassName + (count++) + ".cs.tmp");
+    }
+    await File.WriteAllTextAsync(
+      name,
+      builder.Build(
+      @params,
+      settings,
+      data));
   }
 
   internal static ClassGenerationSetting CombineSettings(string? fullName, ClassGenerationSetting classGenerationSetting)

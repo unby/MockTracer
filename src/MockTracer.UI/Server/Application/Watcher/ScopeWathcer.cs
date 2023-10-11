@@ -59,7 +59,9 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
 
     var time = DateTime.Now;
     StackRow? stackRow = _stack.Any() ? _stack.Peek() : null;
-
+    (string? name, string? nameSapce) outputType = trace.OutputType != null ?
+      (trace.OutputType.GetRealTypeName(), trace.OutputType.Namespace) :
+      (trace.CalledMethod?.ReturnParameter?.ParameterType.GetRealTypeName(), trace.CalledMethod?.ReturnParameter?.ParameterType.Namespace);
     if (stackRow == null)
     {
       _scope = new StackScope()
@@ -85,14 +87,13 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
         DeclaringTypeNamespace = trace.CalledType?.Namespace,
         DeclaringTypeName = trace.CalledType?.GetRealTypeName(),
         MethodName = trace.CalledMethod?.GetRealMethodName(),
-        OutputTypeName = trace.CalledMethod?.DeclaringType?.GetRealTypeName(),
-        OutputTypeNamespace = trace.CalledMethod?.DeclaringType?.Namespace,
+        OutputTypeName = outputType.name,
+        OutputTypeNamespace = outputType.nameSapce,
       };
       _context.StackScopes.Add(_scope);
     }
     else
     {
-
       stackRow = new StackRow()
       {
         Id = trace.TraceId,
@@ -111,8 +112,8 @@ public class ScopeWatcher : IDisposable, IScopeWatcher
         DeclaringTypeNamespace = trace.CalledType?.Namespace,
         DeclaringTypeName = trace.CalledType?.GetRealTypeName(),
         MethodName = trace.CalledMethod?.GetRealMethodName(),
-        OutputTypeName = trace.CalledMethod?.DeclaringType?.GetRealTypeName(),
-        OutputTypeNamespace = trace.CalledMethod?.DeclaringType?.Namespace,
+        OutputTypeName = outputType.name,
+        OutputTypeNamespace = outputType.nameSapce,
       };
 
     }

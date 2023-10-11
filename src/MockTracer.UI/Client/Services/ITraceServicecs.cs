@@ -30,6 +30,13 @@ public interface ITraceService
   Task MakeTestAsync(GenerationAttributes attributes);
 
   /// <summary>
+  /// Generate test class and save to directory
+  /// </summary>
+  /// <param name="attributes"></param>
+  /// <returns></returns>
+  Task MakeTestAndSaveToProjectAsync(GenerationAttributes attributes);
+
+  /// <summary>
   /// generate internal test
   /// </summary>
   /// <param name="attributes"></param>
