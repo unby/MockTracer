@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using MockTracer.UI.Server.Application.Generation;
 using MockTracer.UI.Server.Application.Generation.IntenalTest;
 using MockTracer.UI.Server.Application.Presentation;
+using MockTracer.UI.Server.Options;
 using MockTracer.UI.Shared.Generation;
 
 namespace MockTracer.UI.Server.Controllers;
@@ -15,7 +16,7 @@ public class DataController : ControllerBase
   private readonly TraceRepository _traceRepository;
   private readonly TestClassGenerator _generator;
   private readonly InternalTestClassGenerator _internalTestClassGenerator;
-  private readonly IOptions<ClassGenerationSetting> _options;
+  private readonly ClassGenerationSetting _options;
 
   /// <summary>
   /// DataController
@@ -24,12 +25,12 @@ public class DataController : ControllerBase
   /// <param name="generator"><see cref="TestClassGenerator"/></param>
   /// <param name="internalTestClassGenerator"><see cref="InternalTestClassGenerator"/></param>
   /// <param name="options"><see cref="ClassGenerationSetting"/></param>
-  public DataController(TraceRepository traceRepository, TestClassGenerator generator, InternalTestClassGenerator internalTestClassGenerator, IOptions<ClassGenerationSetting> options)
+  public DataController(TraceRepository traceRepository, TestClassGenerator generator, InternalTestClassGenerator internalTestClassGenerator, IOptions<MockTracerOption> options)
   {
     _traceRepository = traceRepository;
     _generator = generator;
     _internalTestClassGenerator = internalTestClassGenerator;
-    _options = options;
+    _options = options.Value.GenerationSetting;
   }
 
   [HttpGet("trace-list")]
@@ -51,7 +52,7 @@ public class DataController : ControllerBase
   [HttpGet("class-settings")]
   public ActionResult GetSettignsAsync()
   {
-    return Ok(_options.Value);
+    return Ok(_options);
   }
   
   [HttpPost("generate")]

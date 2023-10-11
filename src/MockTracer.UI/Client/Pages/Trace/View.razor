@@ -22,19 +22,18 @@ else
     <div class="row">
         <div class="col">
             <div class="input-group">
-                <input type="text" class="form-control" bind="@testName" placeholder="test class name" aria-label="test class name2" aria-describedby="button-addon2">
-                <button type="button" class="btn btn-outline-secondary" @onclick="MakeTestAsync">Generate test</button>
+                <input type="text" class="form-control" @bind="testName" placeholder="test class name" aria-label="test class name2" aria-describedby="button-addon2">
+                <button type="button" class="btn btn-outline-secondary" title="download file" @onclick="MakeTestAsync">Generate test</button>
                 <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">New feature</a></li>
-                    <li><a class="dropdown-item" href="#">New feature 2</a></li>
-                    <li><a class="dropdown-item" title="@settings.DefaultFolder" @onclick="MakeTestAndSaveToProjectAsync" >Save to project</a></li>
+                    <li><a class="dropdown-item" title="@outputDirectory" @onclick="MakeTestAndSaveToProjectAsync">Save to project</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" @onclick="MakeIntrenalTestAsync">Internal geneartion</a></li>
+                    <li><a class="dropdown-item" @onclick="MakeIntrenalTestAsync">Download data for service test</a></li>
                 </ul>
             </div>
+
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -86,9 +85,10 @@ else
     public Guid Id { get; set; }
 
     Row[] stack = null;
-    ClassGenerationSetting settings = null;
+    ClassGenerationSetting settings { get; set; } = new ClassGenerationSetting();
     StackRow? selectedRow = null;
     string testName { get; set; } = "testclass.testmethod";
+    string outputDirectory = string.Empty;
     private async Task MakeTestAsync()
     {
         await TraceService.MakeTestAsync(
@@ -113,11 +113,13 @@ else
                });
     }
 
+    private async Task MakeTestAndSaveToProjectAsync()
     {
         await TraceService.MakeTestAndSaveToProjectAsync(
            new UI.Shared.Generation.GenerationAttributes()
                {
                    ScopeId = stack[0].Stack.ScopeId,
+                   InputId = stack.First(f => f.IsInput).Stack.Id,
                    OutputId = stack.Where(w => w.IsOutput).Select(s => s.Stack.Id).ToArray(),
                    TestName = testName
                });
@@ -141,6 +143,8 @@ else
                 ParentOrder = scope.Stack.FirstOrDefault(a => a.Id == s.ParentId)?.Order
             }).ToArray();
         testName = settings.DefaultNameSpace + "." + settings.DefaultClassName + "Test." + settings.DefaultMethodName;
+
+        outputDirectory = settings?.DefaultFolder;
     }
 
     public void CheckInput(Row row, ChangeEventArgs checkedValue)

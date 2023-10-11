@@ -40,5 +40,5 @@ public class ClassGenerationSetting
   /// <summary>
   /// output directory
   /// </summary>
-  public string DefaultFolder { get; set; }= string.Empty;
+  public string DefaultFolder { get; set; } = string.Empty;
 }

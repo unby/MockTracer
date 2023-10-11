@@ -272,3 +272,6 @@ Packages.props
 log*.txt
 *.db-shm
 *.db-wal
+
+# generated tests
+Test/MockTracer.Test/Generated/*
