@@ -38,6 +38,20 @@ public class DataSource : IDataSource
     return result;
   }
 
+  public Task SetUsersAsync(UserDTO userDTO, CancellationToken cancellationToken)
+  {
+    using var con = _dbProvider.GetDbConnection();
+
+    return con.ExecuteAsync("INSERT INTO users (Nick, Email, RegistrationDate, Type) VALUES (@Nick, @Email, @RegistrationDate, @Type); ", new { userDTO.Email, userDTO.RegistrationDate, userDTO.Nick, userDTO.Type });
+  }
+
+  public Task InvalidStatementAsync(UserDTO userDTO, CancellationToken cancellationToken)
+  {
+    using var con = _dbProvider.GetDbConnection();
+
+    return con.ExecuteAsync("INSERT INTO users (Name666, Email, RegistrationDate, Type) VALUES (@Name, @Email, @RegistrationDate, @Type); ", userDTO);
+  }
+
   public DataRecord SingleRow(int integer, string name)
   {
     using var con = _dbProvider.GetDbConnection();

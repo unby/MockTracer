@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+
   <ItemGroup>
     <PackageReference Include="Ardalis.HttpClientTestExtensions" Version="3.0.0" />
     <PackageReference Include="DelegateDecompiler" Version="0.32.0" />
@@ -27,6 +28,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MockTracer\MockTracer.csproj" />
     <ProjectReference Include="..\MockTracer.Test.Api\MockTracer.Test.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generated\" />
   </ItemGroup>
 
 </Project>

@@ -20,7 +20,7 @@ public interface ITraceService
   /// <summary>
   /// scope detail info
   /// </summary>
-  Task<StackScope> GetScopeDefenitionAsync(Guid scopeId);
+  Task<StackScope> GetExecutionStackAsync(Guid scopeId);
 
   /// <summary>
   /// Generate test class

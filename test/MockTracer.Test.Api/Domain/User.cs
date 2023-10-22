@@ -7,4 +7,8 @@ public class User
     public string Nick { get; init; }
 
     public string Email { get; init; }
+
+    public DateTime RegistrationDate { get; init; } = DateTime.UtcNow;
+
+    public int Type { get; init; } = 0;
 }

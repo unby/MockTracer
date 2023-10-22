@@ -36,7 +36,7 @@ public class HttpClientTest : SampleTestBase
     var result = await host.GetHttpClient().GetAsync("/api/topic/v10/fact");
 
     // :todo add additional assertions
-    Assert.NotEqual(HttpStatusCode.OK, result.StatusCode);
+    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
   }
 
   [Fact]

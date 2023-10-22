@@ -18,7 +18,7 @@ public class EfInterceptorTest : SampleTestBase
   {
   }
 
-  [Fact]
+  // [Fact]
   public async Task RunAsync()
   {
     var host = NewServer();

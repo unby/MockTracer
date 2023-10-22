@@ -13,5 +13,8 @@ public interface IDataSource
   int ExecuteNonQuery();
 
   Task<List<User>> GetUsersAsync();
-  
+
+  Task SetUsersAsync(UserDTO userDTO, CancellationToken cancellationToken);
+
+  Task InvalidStatementAsync(UserDTO userDTO, CancellationToken cancellationToken);
 }

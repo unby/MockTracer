@@ -3,7 +3,7 @@
 /// <summary>
 /// class attributes
 /// </summary>
-public class ClassGenerationSetting
+public class ClassGenerationSetting : System.ICloneable
 {
   /// <summary>
   /// ClassGenerationSetting
@@ -41,4 +41,28 @@ public class ClassGenerationSetting
   /// output directory
   /// </summary>
   public string DefaultFolder { get; set; } = string.Empty;
+
+  public string[] NameSpaces { get; set; } = new string[] { "MockTracer.Test" };
+
+  public string FileExtentions { get; set; } = "cs.tmp";
+
+  public ClassGenerationSetting Clone()
+  {
+    return new ClassGenerationSetting
+    {
+      DefaultNameSpace = DefaultNameSpace,
+      DefaultClassName = DefaultClassName,
+      DefaultMethodName = DefaultMethodName,
+      IsWriteNameSpaceBracket = IsWriteNameSpaceBracket,
+      TestBase = TestBase,
+      DefaultFolder = DefaultFolder,
+      NameSpaces = NameSpaces.ToArray(),
+      FileExtentions = FileExtentions
+    };
+  }
+
+  object ICloneable.Clone()
+  {
+    return Clone();
+  }
 }

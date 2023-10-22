@@ -6,15 +6,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace MockTracer.Test.Api.Infrastracture.Database;
 
-public interface IK1
+public class KeyOrderingExpressionInterceptor : IQueryExpressionInterceptor
 {
-  int Key { get; }
-}
-
-public class KeyOrderingExpressionInterceptor : IK1, IQueryExpressionInterceptor
-{
-  public int Key => throw new NotImplementedException();
-
   public Expression QueryCompilationStarting(
       Expression queryExpression,
       QueryExpressionEventData eventData)
@@ -29,6 +22,7 @@ public class KeyOrderingExpressionInterceptor : IK1, IQueryExpressionInterceptor
 
     protected override Expression VisitMethodCall(MethodCallExpression? methodCallExpression)
     {
+      //https://code-maze.com/csharp-deep-copy-of-object/
       Console.WriteLine(methodCallExpression);
       var methodInfo = methodCallExpression!.Method;
       if (methodInfo.DeclaringType == typeof(Queryable)

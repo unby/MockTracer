@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 using MockTracer.Test.Api.Domain;
 using MockTracer.Test.Api.Infrastracture.Database;
 using AgileObjects.NetStandardPolyfills;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("DynamicAssemblyExample")]
 
 namespace MockTracer.Test.Api.Application.Features.Topic;
 
@@ -20,39 +23,40 @@ public class TopicQueryHandler : IRequestHandler<TopicQuery, List<TopicDto>>
   public async Task<List<TopicDto>> Handle(TopicQuery request, CancellationToken cancellationToken)
   {
     var db = _context as DbContext;
-    var result = await (from t in _context.Topics.Where(w => w.Id > 0)
-                        join u in _context.Users on t.AuthorId equals u.Id
+    var result = await (from t in _context.Topics.Where(w => w.Id > 0).OfType<Domain.Topic>().AsTracking(QueryTrackingBehavior.TrackAll).Select(s => new Topic2
+    {
+      Id = s.Id,
+      Title = s.Title,
+      Content = s.Content,
+      Created = s.Created,
+      Author = s.Author,
+      AuthorId = s.AuthorId,
+      Comments = s.Comments
+    }).Select(s => (Domain.Topic)s)
+                        join u in _context.Users.OfType<User>() on t.AuthorId equals u.Id
                         select new TopicDto { Id = t.Id, Title = t.Title, AuthorName = u.Nick }).ToListAsync(cancellationToken);
-    var entity = (_context as DbContext).ChangeTracker.Entries().Select(s => s.Entity).ToList();
-    /* await (from t in _context.Topics.Select(s => s)
-            join u in _context.Users.Select(s => s) on t.AuthorId equals u.Id
-            select new TopicDto { Id = t.Id, Title = t.Title, AuthorName = u.Nick }).ToListAsync(cancellationToken);
-     var entity2 = (_context as DbContext).ChangeTracker.Entries().Select(s => s.Entity).ToList();*/
-
-    /*await (from t in _context.Topics.AsTracking().Select(s => new { s.Comments, s.Created, s.Content, s.AuthorId, s.Id, s.Title })
-           join u in _context.Users.AsTracking().Select(s => new { s.Email, s.Id, s.Nick }) on t.AuthorId equals u.Id
-           select new TopicDto { Id = t.Id, Title = t.Title, AuthorName = u.Nick }).ToListAsync(cancellationToken);
-    var entity3 = (_context as DbContext).ChangeTracker.Entries().Select(s => s.Entity).ToList();*/
-
-    /* ! normic
-     * result = await(from t in _context.Topics
-                         join u in _context.Users on t.AuthorId equals u.Id
-                         select (TopicDto)new VTopicDto { Id = t.Id, Title = t.Title, AuthorName = u.Nick, t1 = u, t2 = t }).ToListAsync(cancellationToken);
-     var entity4 = (_context as DbContext).ChangeTracker.Entries().Select(s => s.Entity).ToList();
-    */
-
-
+    /* 
+    //normic
     result = await (from t in _context.Topics
                     join u in _context.Users on t.AuthorId equals u.Id
-                    select new TestT { r = new TopicDto { Id = t.Id, Title = t.Title, AuthorName = u.Nick }, t1 = u, t2 = t }).AsTracking().Select(s=>s.r).ToListAsync(cancellationToken);
-    var entity5 = (_context as DbContext).ChangeTracker.Entries().Select(s => s.Entity).ToList();
-
-    /*
+                    select (TopicDto)new VTopicDto { Id = t.Id, Title = t.Title, AuthorName = u.Nick, t1 = u, t2 = t }).ToListAsync(cancellationToken);
+    var entity4 = (_context as DbContext).ChangeTracker.Entries().Select(s => s.Entity).ToList();
+    */
     var childT = MyTypeBuilder.CreateNewObject<TopicDto2>();
     var tt = childT.GetType();
-    Console.WriteLine(tt);*/
     // https://stackoverflow.com/questions/3862226/how-to-dynamically-create-a-class
     return result;
+  }
+
+  public class VTopicDto : TopicDto
+  {
+    internal User t1 { get; set; }
+    internal Domain.Topic t2 { get; set; }
+  }
+
+  public class Topic2 : Domain.Topic
+  {
+
   }
 
   public static class MyTypeBuilder

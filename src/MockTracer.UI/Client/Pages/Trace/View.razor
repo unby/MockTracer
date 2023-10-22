@@ -10,7 +10,7 @@
 @inject ITraceService TraceService
 @inject MockTracer.UI.Client.Shared.PageHistoryState PageHistoryState
 
-<h1>Scope defenition</h1>
+<h1>Execution stack</h1>
 <br />
 
 @if (stack == null)
@@ -133,7 +133,7 @@ else
     protected async override Task OnParametersSetAsync()
     {
         settings = await TraceService.GetClassGenerationSettingAsync();
-        var scope = await TraceService.GetScopeDefenitionAsync(Id);
+        var scope = await TraceService.GetExecutionStackAsync(Id);
         stack = scope.Stack.Select(s => new Row()
             {
                 Stack = s,

@@ -45,11 +45,10 @@ public class Startup
       s.DecorateDbProvider<IDbProvider>();
       s.DecorateVirtual<IDataSource>();
     },
-      s => { s.GenerationSetting.DefaultFolder = @"..\MockTracer.Test\Generated"; });
-    Console.WriteLine(Environment.CurrentDirectory); // C:\git\MoqTracer\test\MockTracer.Test.Api
+      s => { s.GenerationSetting.DefaultFolder = @"..\MockTracer.Test\Generated"; s.GenerationSetting.FileExtentions = "cs"; } );
+    Console.WriteLine(Environment.CurrentDirectory);
   }
 
-  // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
   public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
   {
     if (env.IsDevelopment())

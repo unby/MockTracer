@@ -9,7 +9,9 @@ public class SqldDataComandHandler :
   IRequestHandler<MultupleQueryAsync, List<DataRecord>>,
   IRequestHandler<SingleRow, DataRecord>,
   IRequestHandler<SystemDate, DateTime>,
-  IRequestHandler<UserList, List<User>>
+  IRequestHandler<UserList, List<User>>,
+  IRequestHandler<NewUserCommand>
+
 {
   private readonly IDataSource _service;
 
@@ -95,6 +97,44 @@ public class SqldDataComandHandler :
     try
     {
       return await _service.GetUsersAsync();
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine(ex);
+      throw;
+    }
+  }
+
+  public class NewUserCommand : IRequest
+  {
+  }
+
+  public async Task<Unit> Handle(NewUserCommand request, CancellationToken cancellationToken)
+  {
+    try
+    {
+      DateTime date = DateTime.Now.AddDays(-200);
+      await _service.SetUsersAsync(new UserDTO() { Email=$"e{date.ToString("ddMMyyyy")}@test.test", RegistrationDate = date, Type = 2, Nick = date.ToString("Name_ddMMyyyy") }, cancellationToken);
+      return Unit.Value;
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine(ex);
+      throw;
+    }
+  }
+
+  public class InvalidSQLStatementCommand : IRequest
+  {
+  }
+
+  public async Task<Unit> Handle(InvalidSQLStatementCommand request, CancellationToken cancellationToken)
+  {
+    try
+    {
+      DateTime date = DateTime.Now.AddDays(-200);
+      await _service.InvalidStatementAsync(new UserDTO() { Email = $"e{date.ToString("ddMMyyyy")}@test.test", RegistrationDate = date, Type = 2, Nick = date.ToString("Name_ddMMyyyy") }, cancellationToken);
+      return Unit.Value;
     }
     catch (Exception ex)
     {

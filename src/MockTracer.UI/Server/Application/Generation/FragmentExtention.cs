@@ -50,9 +50,12 @@ internal static class FragmentExtention
 
   public static List<LineFragment> AddNameSpace(this List<LineFragment> lines, params string[] nameSpaces)
   {
-    foreach (var space in nameSpaces)
+    if (nameSpaces != null)
     {
-      lines.Add(new LineFragment(BuildingConstans.Using, $"using {space};"));
+      foreach (var space in nameSpaces)
+      {
+        lines.Add(new LineFragment(BuildingConstans.Using, $"using {space};"));
+      }
     }
 
     return lines;

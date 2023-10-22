@@ -81,6 +81,18 @@ public class TopicController : ControllerBase
     return Ok(await _mediator.Send(new SqldDataComandHandler.UserList()));
   }
 
+  /// <summary>
+  /// NewUserCommand
+  /// </summary>
+  /// <returns></returns>
+  [HttpGet("sql-call/NewUserCommand")]
+  [ProducesResponseType((int)HttpStatusCode.OK)]
+  public async Task<IActionResult> NewUserCommandAsync()
+  {
+    return Ok(await _mediator.Send(new SqldDataComandHandler.NewUserCommand()));
+  }
+  
+
   [HttpGet("fact")]
   [ProducesResponseType((int)HttpStatusCode.OK)]
   public async Task<IActionResult> GetfactAsync()

@@ -46,10 +46,11 @@ public abstract class TemplateBuilderBase : ITemplateBuilder
   /// <param name="settings"></param>
   /// <param name="context"></param>
   /// <returns>string with test class</returns>
-  public virtual string Build(Shared.Generation.GenerationAttributes @params, ClassGenerationSetting settings, GenerationContext context)
+  public virtual string Build(GenerationAttributes @params, ClassGenerationSetting settings, GenerationContext context)
   {
     StringBuilder builder = NameReplace(settings);
-    var data = new List<LineFragment>(_builderResolver.ResolveInputBuilder(context.Input.TracerType).BuildFragments(context.Input));
+    var data = new List<LineFragment>(_builderResolver.ResolveInputBuilder(context.Input.TracerType).BuildFragments(context.Input)).AddNameSpace(settings.NameSpaces);
+
     foreach (var item in context.Output)
     {
       var mocker = _builderResolver.ResolveMockBuilder(item.TracerType);

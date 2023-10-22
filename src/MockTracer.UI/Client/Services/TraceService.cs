@@ -43,7 +43,7 @@ public class TraceService : ITraceService
   }
 
   /// <inheritdoc/>
-  public async Task<StackScope> GetScopeDefenitionAsync(Guid scopeId)
+  public async Task<StackScope> GetExecutionStackAsync(Guid scopeId)
   {
     return await Get<StackScope>($"data/trace-rows/{scopeId}");
   }

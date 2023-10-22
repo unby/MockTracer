@@ -38,10 +38,10 @@ public class TestClassGenerator
     var data = await _traceRepository.GetGenerationDataAsync(@params);
     var builder = _builderResolver.ResolveTemplateBuilder(@params.TemplateCode);
     var settings = CombineSettings(@params.TestName, _options);
-    var name = Path.Combine(_options.DefaultFolder, settings.DefaultClassName + ".cs.tmp");
+    var name = Path.Combine(settings.DefaultFolder, $"{settings.DefaultClassName}.{settings.FileExtentions}");
     var count = 1;
     while (File.Exists(name)) {
-      name = Path.Combine(_options.DefaultFolder, settings.DefaultClassName + (count++) + ".cs.tmp");
+      name = Path.Combine(settings.DefaultFolder, $"{settings.DefaultClassName}{count++}.{settings.FileExtentions}");
     }
     await File.WriteAllTextAsync(
       name,
@@ -59,13 +59,13 @@ public class TestClassGenerator
     }
 
     var segments = fullName.Split('.');
-    return new ClassGenerationSetting()
-    {
-      DefaultNameSpace = segments.Length > 2 ? string.Join('.', segments.SkipLast(2)) : classGenerationSetting.DefaultNameSpace,
-      DefaultClassName = segments.Length > 1 ? segments.SkipLast(1).Last() : classGenerationSetting.DefaultClassName,
-      DefaultMethodName = segments.LastOrDefault() ?? classGenerationSetting.DefaultMethodName,
-      IsWriteNameSpaceBracket = classGenerationSetting.IsWriteNameSpaceBracket,
-      TestBase = classGenerationSetting.TestBase,
-    };
+    var setings = classGenerationSetting.Clone();
+
+    setings.DefaultNameSpace = segments.Length > 2 ? string.Join('.', segments.SkipLast(2)) : classGenerationSetting.DefaultNameSpace;
+    setings.DefaultClassName = segments.Length > 1 ? segments.SkipLast(1).Last() : classGenerationSetting.DefaultClassName;
+    setings.DefaultMethodName = segments.LastOrDefault() ?? classGenerationSetting.DefaultMethodName;
+    setings.TestBase = classGenerationSetting.TestBase;
+
+    return setings;
   }
 }
