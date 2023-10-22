@@ -38,6 +38,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
     <ProjectReference Condition="$(Configuration)=='Debug'" Include="..\..\src\MockTracer.UI\Client\MockTracer.UI.Client.csproj" />
     <ProjectReference Include="..\..\src\MockTracer.UI\Server\MockTracer.UI.Server.csproj" />
+    <ProjectReference Include="..\..\src\MockTracer.UI\Shared\MockTracer.UI.Shared.csproj" />
   </ItemGroup>
 
   <!--https://stackoverflow.com/questions/63457026/any-way-to-exclude-blazordebugproxy-directory-from-release-blazor-wasm-apps-->

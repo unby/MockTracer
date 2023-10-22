@@ -13,9 +13,21 @@
     <PackageId>MockTracer.UI</PackageId>
     <PackageTags>objectdumper;dump;dumpobject;initializer;c#;objects;debug;logging;tracing;integrationtest;unittest;test</PackageTags>
     <PackageProjectUrl>https://github.com/unby/MockTracer</PackageProjectUrl>
-    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <NoPackageAnalysis>true</NoPackageAnalysis>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.1.1" />
@@ -36,6 +48,8 @@
   <!--https://stackoverflow.com/questions/63457026/any-way-to-exclude-blazordebugproxy-directory-from-release-blazor-wasm-apps-->
   <PropertyGroup>
     <BlazorWebAssemblyOmitDebugProxyOutput>true</BlazorWebAssemblyOmitDebugProxyOutput>
+    <Copyright>Copyright 2022-$([System.DateTime]::Now.ToString(`yyyy`)) &amp;#169; Ruslan Gilmanov</Copyright>
+    <Authors>Ruslan Gilmanov </Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,7 +61,7 @@
       <IncludeAssets>MockTracer.UI.Shared.dll</IncludeAssets>
     </ProjectReference>
   </ItemGroup>
-
+  
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
@@ -78,7 +92,11 @@
       <Link>css---open-iconic---font---fonts---%(Filename)%(Extension)</Link>
       <Visible>false</Visible>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\Client\obj\Debug\net6.0\scopedcss\bundle\MockTracer.UI.Client.styles.css" Label="wwwroot" CopyToOutputDirectory="Never">
+    <EmbeddedResource Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" Include="..\Client\obj\Debug\net6.0\scopedcss\bundle\MockTracer.UI.Client.styles.css" Label="wwwroot" CopyToOutputDirectory="Never">
+      <Link>MockTracer.UI.Client.styles.css</Link>
+      <Visible>false</Visible>
+    </EmbeddedResource>
+    <EmbeddedResource Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" Include="..\Client\obj\Release\net6.0\scopedcss\bundle\MockTracer.UI.Client.styles.css" Label="wwwroot" CopyToOutputDirectory="Never">
       <Link>MockTracer.UI.Client.styles.css</Link>
       <Visible>false</Visible>
     </EmbeddedResource>
@@ -91,9 +109,4 @@
     </ItemGroup>
   </Target>
 
-  <PropertyGroup>
-
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-
-  </PropertyGroup>
 </Project>
